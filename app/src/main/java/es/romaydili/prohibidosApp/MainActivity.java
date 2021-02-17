@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Boolean actualizacion_permitir = false;
     private String url_actualizacion, mensaje_actualizacion;
 
-
     public static String getIdentificadorAndroid() {
         return androidID;
     }
