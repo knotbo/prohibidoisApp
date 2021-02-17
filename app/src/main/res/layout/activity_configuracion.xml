@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context=".ConfiguracionActivity">
+<FrameLayout
+    android:id="@+id/framelatout_1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:visibility="gone">
+
+    <com.squareup.timessquare.CalendarPickerView
+    android:id="@+id/calendar_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginLeft="20dp"
+        android:layout_gravity="bottom|right"
+        app:srcCompat="@android:drawable/ic_input_add"
+        android:layout_margin="15dp" />
+</FrameLayout>
+
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <RelativeLayout
+            android:id="@+id/form_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/configuracion_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:paddingTop="30dp"
+                android:text="Configuración"
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/androidID_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/configuracion_txt"
+                android:layout_centerHorizontal="true"
+                android:padding="10dp"
+                android:text=""
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/payments_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/androidID_txt"
+                android:layout_centerHorizontal="true"
+                android:text=""
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/linear_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/payments_txt"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/ultimaActualizacion_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Última Actualización"
+                    android:textAllCaps="true"
+                    android:textSize="18sp"
+                    />
+
+                <TextView
+                    android:id="@+id/ultimaActualizacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/colorPrimaryDark"
+                    android:textSize="18sp"
+                    android:gravity="center"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fichero"
+                    android:textAllCaps="true"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/fichero_actualizacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/colorPrimaryDark"
+                    android:textSize="18sp"
+                    android:gravity="center"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Número de Prohibidos"
+                    android:textAllCaps="true"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/numProhibidos"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/colorPrimaryDark"
+                    android:gravity="center"
+                    android:textSize="18sp" />
+
+                <LinearLayout
+                    android:id="@+id/linear_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+
+
+                    <CheckBox
+                    android:id="@+id/scannerInical_ckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Leer Documento al iniciar la App"
+                    android:buttonTint="@color/colorPrimaryDark"
+                    />
+
+
+                </LinearLayout>
+                <CheckBox
+                    android:id="@+id/ocultarInfo_ckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Ocultar Información Sensible"
+                    android:buttonTint="@color/colorPrimaryDark"
+                    android:checked="true"
+                    />
+                <CheckBox
+                    android:id="@+id/beep_ckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Beep al leer Documento"
+                    android:buttonTint="@color/colorPrimaryDark"
+                    android:checked="true"
+                    />
+                <CheckBox
+                    android:id="@+id/impresion_ckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Imprimir Vales"
+                    android:buttonTint="@color/colorPrimaryDark"
+                    />
+                <CheckBox
+                    android:id="@+id/debugMode_ckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Debug Mode"
+                    android:buttonTint="@color/colorPrimaryDark"
+                    android:visibility="gone"
+                    />
+
+
+
+                <TextView
+                    android:id="@+id/usuario_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Usuario"
+                    android:textAllCaps="true"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    android:layout_marginTop="20dp"
+                    />
+
+                <EditText
+                    android:id="@+id/usuario_edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/colorPrimaryDark"
+                    android:gravity="center"
+                    android:textSize="18sp"
+                    android:singleLine="true"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:padding="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_below="@id/linear_1"
+                    android:layout_marginTop="5dp">
+
+                    <Button
+                        android:id="@+id/back_btn"
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/activity_description_txt"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/buttons"
+                        android:backgroundTint="@color/colorPrimaryDark"
+                        android:padding="5dp"
+                        android:text="Volver" />
+                    <Button
+                        android:id="@+id/guardar_btn"
+                        android:layout_weight="1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/activity_description_txt"
+                        android:layout_marginLeft="20dp"
+
+                        android:background="@drawable/buttons"
+                        android:backgroundTint="@color/colorPrimaryDark"
+                        android:padding="5dp"
+                        android:text="Guardar" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </RelativeLayout>
+    </ScrollView>
+
+
+</RelativeLayout>

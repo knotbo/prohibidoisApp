@@ -1,0 +1,37 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+    <style name="MyDialogThemePermitido" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/permitido</item>
+        <!-- Custom the title -->
+        <item name="android:windowTitleStyle">@style/YourDialogWindowTitle</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="fontStyle">italic</item>
+    </style>
+    <style name="MyDialogThemeProhibido" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/prohibido</item>
+        <!-- Custom the title -->
+        <item name="android:windowTitleStyle">@style/YourDialogWindowTitle</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:buttonStyle">@style/Sphinx.ButtonBar.AlertDialog</item>
+    </style>
+
+    <style name="MyDialogThemeNeutral" parent="Theme.AppCompat.Light.Dialog.Alert">
+
+
+    </style>
+
+    <style name="YourDialogWindowTitle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="Sphinx.ButtonBar.AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+</resources>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    >
+
+
+    <FrameLayout
+        android:id="@+id/framelatout_1"
+        android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+
+        <ImageView
+            android:layout_width="fill_parent" android:layout_height="fill_parent"
+            android:src="@drawable/dashboard2" android:scaleType="centerCrop" />
+        <TextView
+            android:id="@+id/textView_Version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Versión"
+            android:lines="1"
+            android:textColor="@color/blanco"
+            android:layout_marginRight="7dp"
+            android:layout_marginTop="5dp"
+            android:textSize="16dp"
+            android:gravity="right"
+
+        />
+
+
+        <ImageView
+            android:id="@+id/logoGEHD"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginRight="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="right"
+            android:src="@drawable/logo_gehd"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/textView_Actualizacion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Obteniendo Actualización..."
+            android:lines="1"
+            android:textColor="@color/blanco"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:textSize="16dp"
+            android:gravity="right"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"/>
+
+            <ProgressBar
+                android:id="@+id/spinner"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="50dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/colorPrimary"
+                android:visibility="invisible"
+
+                />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="350dp"
+            android:orientation="vertical">
+
+
+            <Button
+                android:id="@+id/btn_comprobar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btn_scanner"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/buttons"
+                android:padding="17dp"
+                android:text="Comprobación Manual"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/btn_scanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/framelatout_1"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/buttons"
+                android:padding="17dp"
+                android:text="Leer Documento"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/btn_configuracion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btn_comprobar"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/buttons"
+                android:padding="17dp"
+                android:text="Configuración"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:visibility="visible" />
+
+
+
+
+        </LinearLayout>
+
+
+
+
+    </FrameLayout>
+
+
+
+
+
+
+
+</RelativeLayout>
+
+
