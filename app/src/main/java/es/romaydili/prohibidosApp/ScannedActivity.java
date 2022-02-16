@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 //import android.os.Handler;
@@ -16,10 +17,12 @@ import android.os.ParcelFileDescriptor;
 import android.print.PageRange;
 //import android.print.PrintManager;
 import android.text.Editable;
+import android.text.Html;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -400,6 +403,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                     public void onResponse(String response) {
 
                         boolean permitido=false,resultado_correcto=false;
+                        boolean certificadoCovid = false; //Certificado Covid
                         String mensaje="";
                         int numAccesosHoy=-1;
 
@@ -417,6 +421,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 permitido=jsonObject.getBoolean("acceso_permitido");
                                 mensaje=jsonObject.getString("mensaje");
                                 numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
+                                certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                             }else{
                                 if(jsonObject.getString("status").equals("true")) {
                                     resultado_correcto=false;
@@ -468,7 +473,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
 
                         alertOpciones.setTitle(titulo);
                         alertOpciones.setIcon(icono);
-                        alertOpciones.setMessage(mensaje);
+                        alertOpciones.setMessage(Html.fromHtml(mensaje));
                         alertOpciones.setCancelable(false);
                         alertOpciones.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
@@ -477,12 +482,34 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             }
                         });
 
+                        if(certificadoCovid == false) {
+                            alertOpciones.setNeutralButton("Certificar", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent i;
+                                    PackageManager manager = getPackageManager();
+                                    try {
+                                        i = manager.getLaunchIntentForPackage("ch.admin.bag.covidcertificate.verifier");
+                                        if (i == null)
+                                            throw new PackageManager.NameNotFoundException();
+                                        i.addCategory(Intent.CATEGORY_LAUNCHER);
+                                        startActivity(i);
+                                    } catch (PackageManager.NameNotFoundException e) {
+
+                                    }
+                                    alertOpciones.show();
+                                    ((TextView) alertOpciones.show().findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+                                }
+                            });
+                        }
+
                         android.app.AlertDialog dialog = alertOpciones.show();
                         //alertOpciones.show();
                         TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
                         messageText.setGravity(Gravity.CENTER);
                         messageText.setTextSize(18);
                         dialog.show();
+                        ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 
                     }
                 },
@@ -507,6 +534,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                 params.put("documento", documento);
                 params.put("dispositivo", MainActivity.getIdentificadorAndroid());
                 params.put("usuario", MainActivity.getUsuario());
+                params.put("provincia", MainActivity.getProvincia());
                 params.put("version", MainActivity.getVersion());
 
                 return params;
@@ -533,6 +561,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
 
 
                         boolean permitido=false,resultado_correcto=false;
+                        boolean certificadoCovid = false; //Certificado Covid
                         String mensaje="";
                         int numAccesosHoy=-1;
 
@@ -550,6 +579,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 permitido=jsonObject.getBoolean("acceso_permitido");
                                 mensaje=jsonObject.getString("mensaje");
                                 numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
+                                certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                             }else{
                                 if(jsonObject.getString("status").equals("true")) {
                                     resultado_correcto=false;
@@ -600,7 +630,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
 
                         alertOpciones.setTitle(titulo);
                         alertOpciones.setIcon(icono);
-                        alertOpciones.setMessage(mensaje);
+                        alertOpciones.setMessage(Html.fromHtml(mensaje));
                         alertOpciones.setCancelable(false);
                         alertOpciones.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
@@ -616,12 +646,34 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             }
                         });
 
+                        if(certificadoCovid == false) {
+                            alertOpciones.setNegativeButton("Certificar", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent i;
+                                    PackageManager manager = getPackageManager();
+                                    try {
+                                        i = manager.getLaunchIntentForPackage("ch.admin.bag.covidcertificate.verifier");
+                                        if (i == null)
+                                            throw new PackageManager.NameNotFoundException();
+                                        i.addCategory(Intent.CATEGORY_LAUNCHER);
+                                        startActivity(i);
+                                    } catch (PackageManager.NameNotFoundException e) {
+
+                                    }
+                                    alertOpciones.show();
+                                    ((TextView) alertOpciones.show().findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+                                }
+                            });
+                        }
+
                         AlertDialog dialog = alertOpciones.show();
 
                         TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
                         messageText.setTextSize(18);
                         messageText.setGravity(Gravity.CENTER);
                         dialog.show();
+                        ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 
                         //Custom AlertDialog DESACTIVADO
                         /*
@@ -713,6 +765,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                 params.put("fecha_expedicion", editIssuingDate.getText().toString());
                 params.put("dispositivo", MainActivity.getIdentificadorAndroid());
                 params.put("usuario", MainActivity.getUsuario());
+                params.put("provincia", MainActivity.getProvincia());
                 params.put("version", MainActivity.getVersion());
 
 

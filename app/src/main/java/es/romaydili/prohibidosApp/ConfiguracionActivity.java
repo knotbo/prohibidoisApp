@@ -48,7 +48,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
     List<Date> selectedDate;
     EditText adavancePay;
     TextView totalAmount;
-    TextView androidID, configuracion,ultActualizacion,ficheroUltActualizacion,numProhibidosUltActualizacion,usuario_txt;
+    TextView androidID, configuracion,provincia,ultActualizacion,ficheroUltActualizacion,numProhibidosUltActualizacion,usuario_txt;
     EditText usuario_edit;
     CheckBox scannerInicial,debugMode,imprimirVales,ocultarInfo,beep;
     Boolean editando_usuario=false;
@@ -76,6 +76,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         guardarBtn=findViewById(R.id.guardar_btn);
         androidID=findViewById(R.id.androidID_txt);
         configuracion=findViewById(R.id.configuracion_txt);
+        provincia=findViewById(R.id.provincia);
         ultActualizacion=findViewById(R.id.ultimaActualizacion);
         ficheroUltActualizacion=findViewById(R.id.fichero_actualizacion);
         numProhibidosUltActualizacion=findViewById(R.id.numProhibidos);
@@ -113,6 +114,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
 
         if(MainActivity.getActivado()) {
             ultActualizacion.setText(MainActivity.getFechaUltActualizacion());
+            provincia.setText(MainActivity.getProvincia());
             ficheroUltActualizacion.setText(MainActivity.getFicheroUltActualizacion());
             numProhibidosUltActualizacion.setText(MainActivity.getNumProhibidosUltActualizacion());
         }

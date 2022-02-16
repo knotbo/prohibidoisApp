@@ -17,6 +17,19 @@
             android:layout_width="fill_parent" android:layout_height="fill_parent"
             android:src="@drawable/dashboard2" android:scaleType="centerCrop" />
         <TextView
+            android:id="@+id/textView_Provincia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Provincia"
+            android:lines="1"
+            android:textColor="@color/blanco"
+            android:layout_marginLeft="7dp"
+            android:layout_marginTop="5dp"
+            android:textSize="16dp"
+            android:gravity="left"
+
+            />
+        <TextView
             android:id="@+id/textView_Version"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

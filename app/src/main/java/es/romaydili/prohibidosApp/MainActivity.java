@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String ipServidor = "192.168.1.2";
 
     Button button_scanner, button_comprobar, button_configuracion;
-    TextView textVersion, textUltimaActualizacion;
+    TextView textVersion, textProvincia, textUltimaActualizacion;
     ImageView logoGEHD;
     ProgressBar spinner;
     ProgressDialog progressBar;
@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static String numProhibidosUltActualizacion;
     private static String mensaje = "";
     private static String versionApp = "";
+    private static String provincia = "";
     private static boolean scanner_inicial;
     private static boolean ocultarInfo;
     private static boolean imprimir_vales;
@@ -171,6 +172,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return usuario;
     }
 
+    public static String getProvincia() {
+        return provincia;
+    }
+
     public static void setUsuario(String nuevoUsuario) {
         usuario = nuevoUsuario;
     }
@@ -225,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_comprobar = findViewById(R.id.btn_comprobar);
         button_configuracion = findViewById(R.id.btn_configuracion);
         textVersion = findViewById(R.id.textView_Version);
+        textProvincia = findViewById(R.id.textView_Provincia);
         textUltimaActualizacion = findViewById(R.id.textView_Actualizacion);
         logoGEHD = findViewById(R.id.logoGEHD);
         spinner = findViewById(R.id.spinner);
@@ -475,6 +481,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onResponse(String response) {
 
                         boolean permitido = false, resultado_correcto = false;
+                        boolean certificadoCovid = false; //Certificado Covid
                         String mensaje = "";
                         int numAccesosHoy = -1;
 
@@ -492,6 +499,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 permitido = jsonObject.getBoolean("acceso_permitido");
                                 mensaje = jsonObject.getString("mensaje");
                                 numAccesosHoy = jsonObject.getInt("num_accesos_hoy");
+                                certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                             } else {
                                 if (jsonObject.getString("status").equals("true")) {
                                     resultado_correcto = false;
@@ -544,7 +552,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         alertOpciones.setIcon(icono);
 
 
-                        alertOpciones.setMessage(mensaje);
+                        alertOpciones.setMessage(Html.fromHtml(mensaje));
                         alertOpciones.setCancelable(false);
                         alertOpciones.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
@@ -553,13 +561,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         });
 
+                        if(certificadoCovid == false) {
+                            alertOpciones.setNeutralButton("Certificar", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent i;
+                                    PackageManager manager = getPackageManager();
+                                    try {
+                                        i = manager.getLaunchIntentForPackage("ch.admin.bag.covidcertificate.verifier");
+                                        if (i == null)
+                                            throw new PackageManager.NameNotFoundException();
+                                        i.addCategory(Intent.CATEGORY_LAUNCHER);
+                                        startActivity(i);
+                                    } catch (PackageManager.NameNotFoundException e) {
+
+                                    }
+                                    alertOpciones.show();
+                                    ((TextView) alertOpciones.show().findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+                                }
+                            });
+                        }
+
                         AlertDialog dialog = alertOpciones.show();
                         //alertOpciones.show();
                         TextView messageText = (TextView) dialog.findViewById(android.R.id.message);
                         messageText.setGravity(Gravity.CENTER);
                         messageText.setTextSize(18);
                         dialog.show();
-
+                        ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
                     }
                 },
                 new Response.ErrorListener() {
@@ -582,6 +611,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 params.put("documento", documento);
                 params.put("dispositivo", androidID);
                 params.put("usuario", usuario);
+                params.put("provincia", provincia);
                 params.put("version", versionApp);
 
                 return params;
@@ -596,7 +626,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String url_servidor = "ce-juegos.es/";
         String url2 = "App";
-        String url_Version = "/v0.4.0";
+        String url_Version = "/v0.4.1";
         String url_script = "/ult_actualizacion";
         String url_lenguaje = ".php";
 
@@ -632,6 +662,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                             textUltimaActualizacion.setText(fechaUltActualizacion);
+                            textProvincia.setText(provincia);
 
                             if (versionApp.equals("SerOnuba")) {
                                 logoGEHD.setVisibility(View.VISIBLE);
@@ -749,6 +780,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 url_mrz = jsonObject.getString("url_mrz");
 
                 fechaUltActualizacion = jsonObject.getString("ultActualizacion");
+                provincia = jsonObject.getString("provincia");
                 ficheroUltActualizacion = jsonObject.getString("fichero");
                 numProhibidosUltActualizacion = jsonObject.getString("numProhibidos");
                 mensaje = jsonObject.getString("mensaje");
@@ -778,6 +810,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 }
                 */
+
+            }else{
 
             }
 
