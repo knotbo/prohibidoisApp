@@ -5,6 +5,7 @@
     <color name="colorAccent">#FF3355</color>
     <color name="prohibido">#EA192C</color>
     <color name="permitido">#6DCC03</color>
+    <color name="peligro">#FFA500</color>
     <color name="blanco">#FFF</color>
     <color name="negro">#000</color>
 </resources>

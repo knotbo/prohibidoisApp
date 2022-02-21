@@ -21,7 +21,13 @@
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:buttonStyle">@style/Sphinx.ButtonBar.AlertDialog</item>
     </style>
-
+    <style name="MyDialogThemePeligro" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/peligro</item>
+        <!-- Custom the title -->
+        <item name="android:windowTitleStyle">@style/YourDialogWindowTitle</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:buttonStyle">@style/Sphinx.ButtonBar.AlertDialog</item>
+    </style>
     <style name="MyDialogThemeNeutral" parent="Theme.AppCompat.Light.Dialog.Alert">
 
 

@@ -4,11 +4,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 //import android.os.Handler;
@@ -403,8 +405,10 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                     public void onResponse(String response) {
 
                         boolean permitido=false,resultado_correcto=false;
-                        boolean certificadoCovid = false; //Certificado Covid
+                        //boolean certificadoCovid = false; //Certificado Covid
+                        boolean prohibidoDispositivo = false; //mensaje de prohibido en el dispositivo
                         String mensaje="";
+                        String mensajeProhibidoDispositivo="";
                         int numAccesosHoy=-1;
 
                         // Creo un array con los datos JSON que he obtenido
@@ -421,7 +425,9 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 permitido=jsonObject.getBoolean("acceso_permitido");
                                 mensaje=jsonObject.getString("mensaje");
                                 numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
-                                certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
+                                //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
+                                prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
+                                mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
                             }else{
                                 if(jsonObject.getString("status").equals("true")) {
                                     resultado_correcto=false;
@@ -430,6 +436,9 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+
+                            final Toast toast = Toast.makeText(getApplicationContext(), "Error procesando JSON", Toast.LENGTH_LONG);
+                            toast.show();
                         }
 
                         if(MainActivity.getDebugMode() == true) {
@@ -475,13 +484,28 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                         alertOpciones.setIcon(icono);
                         alertOpciones.setMessage(Html.fromHtml(mensaje));
                         alertOpciones.setCancelable(false);
+
+                        if (prohibidoDispositivo == true) {
+                            LinearLayout diagLayout = new LinearLayout(ScannedActivity.this);
+                            diagLayout.setOrientation(LinearLayout.VERTICAL);
+                            TextView textoMensaje = new TextView(ScannedActivity.this);
+                            textoMensaje.setTextColor(Color.BLACK);
+                            textoMensaje.setText(Html.fromHtml(mensajeProhibidoDispositivo));
+                            textoMensaje.setPadding(30, 30, 10, 30);
+                            textoMensaje.setBackgroundColor(ContextCompat.getColor(ScannedActivity.this, R.color.peligro));
+                            textoMensaje.setGravity(Gravity.CENTER);
+                            textoMensaje.setTextSize(30);
+                            diagLayout.addView(textoMensaje);
+                            alertOpciones.setView(diagLayout);
+                        }
+
                         alertOpciones.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
                             }
                         });
-
+/*
                         if(certificadoCovid == false) {
                             alertOpciones.setNeutralButton("Certificar", new DialogInterface.OnClickListener() {
                                 @Override
@@ -502,7 +526,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 }
                             });
                         }
-
+*/
                         android.app.AlertDialog dialog = alertOpciones.show();
                         //alertOpciones.show();
                         TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
@@ -561,8 +585,10 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
 
 
                         boolean permitido=false,resultado_correcto=false;
-                        boolean certificadoCovid = false; //Certificado Covid
+                        //boolean certificadoCovid = false; //Certificado Covid
+                        boolean prohibidoDispositivo = false; //mensaje de prohibido en el dispositivo
                         String mensaje="";
+                        String mensajeProhibidoDispositivo="";
                         int numAccesosHoy=-1;
 
                         // Creo un array con los datos JSON que he obtenido
@@ -579,7 +605,9 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 permitido=jsonObject.getBoolean("acceso_permitido");
                                 mensaje=jsonObject.getString("mensaje");
                                 numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
-                                certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
+                                //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
+                                prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
+                                mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
                             }else{
                                 if(jsonObject.getString("status").equals("true")) {
                                     resultado_correcto=false;
@@ -588,6 +616,9 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+
+                            final Toast toast = Toast.makeText(getApplicationContext(), "Error procesando JSON", Toast.LENGTH_LONG);
+                            toast.show();
                         }
 
 
@@ -632,6 +663,21 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                         alertOpciones.setIcon(icono);
                         alertOpciones.setMessage(Html.fromHtml(mensaje));
                         alertOpciones.setCancelable(false);
+
+                        if (prohibidoDispositivo == true) {
+                            LinearLayout diagLayout = new LinearLayout(ScannedActivity.this);
+                            diagLayout.setOrientation(LinearLayout.VERTICAL);
+                            TextView textoMensaje = new TextView(ScannedActivity.this);
+                            textoMensaje.setTextColor(Color.BLACK);
+                            textoMensaje.setText(Html.fromHtml(mensajeProhibidoDispositivo));
+                            textoMensaje.setPadding(30, 30, 10, 30);
+                            textoMensaje.setBackgroundColor(ContextCompat.getColor(ScannedActivity.this, R.color.peligro));
+                            textoMensaje.setGravity(Gravity.CENTER);
+                            textoMensaje.setTextSize(30);
+                            diagLayout.addView(textoMensaje);
+                            alertOpciones.setView(diagLayout);
+                        }
+
                         alertOpciones.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -645,7 +691,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 startScanner();
                             }
                         });
-
+/*
                         if(certificadoCovid == false) {
                             alertOpciones.setNegativeButton("Certificar", new DialogInterface.OnClickListener() {
                                 @Override
@@ -666,7 +712,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 }
                             });
                         }
-
+*/
                         AlertDialog dialog = alertOpciones.show();
 
                         TextView messageText = (TextView)dialog.findViewById(android.R.id.message);

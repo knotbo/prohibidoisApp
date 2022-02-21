@@ -26,6 +26,10 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
+        <activity android:name=".ScannedSolicitudEfectivoActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity android:name=".ScannedActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"

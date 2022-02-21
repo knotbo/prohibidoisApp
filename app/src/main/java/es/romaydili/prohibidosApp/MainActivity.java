@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 //import androidx.core.content.ContextCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
@@ -22,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -61,8 +63,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -98,9 +106,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String ultActualizacion = "";
     private static String version = "";
     private int clicks = 0;
-    private static final String ipServidor = "192.168.1.2";
+    private static final String ipServidor = "192.168.1.2"; //"192.168.1.23";
 
-    Button button_scanner, button_comprobar, button_configuracion;
+    Button button_solicitudEfectivo,button_scanner, button_comprobar, button_configuracion;
     TextView textVersion, textProvincia, textUltimaActualizacion;
     ImageView logoGEHD;
     ProgressBar spinner;
@@ -124,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String url_base = "https://";
     private static String url_documento;
     private static String url_mrz;
+    private static String url_efectivo;
     private Boolean actualizacion_disponible = false;
     private Boolean actualizacion_permitir = false;
     private String url_actualizacion, mensaje_actualizacion;
@@ -188,6 +197,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return url_mrz;
     }
 
+    public static String getUrlEfectivo() {
+        return url_efectivo;
+    }
+
     public static String getUrlDocumento() {
         return url_documento;
     }
@@ -226,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        button_solicitudEfectivo = findViewById(R.id.btn_solicitud);
         button_scanner = findViewById(R.id.btn_scanner);
         button_comprobar = findViewById(R.id.btn_comprobar);
         button_configuracion = findViewById(R.id.btn_configuracion);
@@ -235,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         logoGEHD = findViewById(R.id.logoGEHD);
         spinner = findViewById(R.id.spinner);
 
+        button_solicitudEfectivo.setOnClickListener(this);
         button_scanner.setOnClickListener(this);
         button_comprobar.setOnClickListener(this);
         button_configuracion.setOnClickListener(this);
@@ -334,10 +349,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+        if (view == button_solicitudEfectivo) {
+            spinner.setVisibility(View.INVISIBLE);
+            startActivity(new Intent(getApplicationContext(), ScannedSolicitudEfectivoActivity.class));
+        }
+
         if (view == button_comprobar) {
             spinner.setVisibility(View.INVISIBLE);
             solicitar_dni();
         }
+
         if (view == button_scanner) {
             spinner.setVisibility(View.INVISIBLE);
             startActivity(new Intent(getApplicationContext(), ScannedActivity.class));
@@ -481,8 +502,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onResponse(String response) {
 
                         boolean permitido = false, resultado_correcto = false;
-                        boolean certificadoCovid = false; //Certificado Covid
+                        //boolean certificadoCovid = false; //Certificado Covid
+                        boolean prohibidoDispositivo = false; //mensaje de prohibido en el dispositivo
                         String mensaje = "";
+                        String mensajeProhibidoDispositivo = "";
                         int numAccesosHoy = -1;
 
                         // Creo un array con los datos JSON que he obtenido
@@ -499,7 +522,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 permitido = jsonObject.getBoolean("acceso_permitido");
                                 mensaje = jsonObject.getString("mensaje");
                                 numAccesosHoy = jsonObject.getInt("num_accesos_hoy");
-                                certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
+                                //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
+                                prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
+                                mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
                             } else {
                                 if (jsonObject.getString("status").equals("true")) {
                                     resultado_correcto = false;
@@ -508,6 +533,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         } catch (JSONException e) {
                             e.printStackTrace();
+
+                            final Toast toast = Toast.makeText(getApplicationContext(), "Error procesando JSON", Toast.LENGTH_LONG);
+                            toast.show();
                         }
 
                         if (MainActivity.getDebugMode() == true) {
@@ -551,8 +579,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         alertOpciones.setTitle(titulo);
                         alertOpciones.setIcon(icono);
 
-
                         alertOpciones.setMessage(Html.fromHtml(mensaje));
+
+                        if (prohibidoDispositivo == true) {
+                            LinearLayout diagLayout = new LinearLayout(MainActivity.this);
+                            diagLayout.setOrientation(LinearLayout.VERTICAL);
+                            TextView textoMensaje = new TextView(MainActivity.this);
+                            textoMensaje.setTextColor(Color.BLACK);
+                            textoMensaje.setText(Html.fromHtml(mensajeProhibidoDispositivo));
+                            textoMensaje.setPadding(30, 30, 10, 30);
+                            textoMensaje.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.peligro));
+                            textoMensaje.setGravity(Gravity.CENTER);
+                            textoMensaje.setTextSize(30);
+                            diagLayout.addView(textoMensaje);
+                            alertOpciones.setView(diagLayout);
+                        }
+
+
                         alertOpciones.setCancelable(false);
                         alertOpciones.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
@@ -561,7 +604,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         });
 
-                        if(certificadoCovid == false) {
+/*                        if(certificadoCovid == false) {
                             alertOpciones.setNeutralButton("Certificar", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -581,7 +624,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
                             });
                         }
-
+*/
                         AlertDialog dialog = alertOpciones.show();
                         //alertOpciones.show();
                         TextView messageText = (TextView) dialog.findViewById(android.R.id.message);
@@ -626,7 +669,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String url_servidor = "ce-juegos.es/";
         String url2 = "App";
-        String url_Version = "/v0.4.1";
+        String url_Version = "/v0.4.2";
         String url_script = "/ult_actualizacion";
         String url_lenguaje = ".php";
 
@@ -650,6 +693,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         procesa_JSON(response);
 
                         if (activado == true && androidID.equals(androidID_codificado)) {
+                            if (versionApp.equals("SerOnuba")) {
+                                button_solicitudEfectivo.setVisibility(View.VISIBLE);
+                            }
                             button_comprobar.setVisibility(View.VISIBLE);
                             button_scanner.setVisibility(View.VISIBLE);
                             if (mensaje.equals("")) {
@@ -714,6 +760,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                         } else {
+                            button_solicitudEfectivo.setVisibility(View.GONE);
                             button_comprobar.setVisibility(View.INVISIBLE);
                             button_scanner.setVisibility(View.INVISIBLE);
                             //textUltimaActualizacion.setGravity(Gravity.CENTER);
@@ -731,16 +778,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                         Context context = getApplicationContext();
-                        CharSequence text = "Compruebe su Conexión a Internet:\r\n\r\n" + error.toString();
+                        CharSequence textToast="";
+                        CharSequence textError="";
                         int duration = Toast.LENGTH_SHORT;
 
-                        final Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
+
+                        if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                            //This indicates that the reuest has either time out or there is no connection
+                            textToast = "Servidor no Responde o No Hay Conexión a Internet";
+                            textError="Servidor no Responde o No Hay Conexión a Internet";
+
+
+                        } else if (error instanceof AuthFailureError) {
+                            // Error indicating that there was an Authentication Failure while performing the request
+                            textToast="Fallo de autenticación del Servidor";
+                            textError="Fallo de autenticación del Servidor";
+
+                        } else if (error instanceof ServerError) {
+                            //Indicates that the server responded with a error response
+                            textToast="Error en la Respuesta del Servidor";
+                            textError="Error en la Respuesta del Servidor";
+                        } else if (error instanceof NetworkError) {
+                            //Indicates that there was network error while performing the request
+                            textToast="Error de Red";
+                            textError="Error de Red";
+                        } else if (error instanceof ParseError) {
+                            // Indicates that the server response could not be parsed
+                            textToast="No se puede interpretar la Respuesta del Servidor";
+                            textError="No se puede interpretar la Respuesta del Servidor";
+                        }
 
                         textUltimaActualizacion.setGravity(Gravity.CENTER);
-                        textUltimaActualizacion.setText("Compruebe su Conexión a Internet");
+                        textUltimaActualizacion.setText(textError);
 
-
+                        final Toast toast = Toast.makeText(context, textToast, duration);
+                        toast.show();
                     }
                 }
         ) {
@@ -762,7 +834,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    void procesa_JSON(String cadena) {
+    private void procesa_JSON(String cadena) {
         // Creo un array con los datos JSON que he obtenido
         ArrayList listaArray = new ArrayList<>();
 
@@ -778,6 +850,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 url_documento = jsonObject.getString("url_documento");
                 url_mrz = jsonObject.getString("url_mrz");
+                if ( versionApp.equals("SerOnuba") ){
+                    url_efectivo = jsonObject.getString("url_efectivo");
+                }
 
                 fechaUltActualizacion = jsonObject.getString("ultActualizacion");
                 provincia = jsonObject.getString("provincia");
@@ -812,12 +887,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 */
 
             }else{
-
+                final Toast toast = Toast.makeText(getApplicationContext(), "Error estado JSON", Toast.LENGTH_LONG);
+                toast.show();
             }
 
         } catch (JSONException e) {
             versionApp = "";
             e.printStackTrace();
+
+            final Toast toast = Toast.makeText(getApplicationContext(), "Error procesando JSON", Toast.LENGTH_LONG);
+            toast.show();
         }
     }
 
