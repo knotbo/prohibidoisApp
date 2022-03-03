@@ -57,6 +57,17 @@ public class ScannerActivity extends AppCompatActivity implements MRZScannerList
         MRZScanner.setEnableVibrationOnSuccess(true);
         //MRZScanner.setDateFormat("dd.MM.YYYY");
 
+        mrzScanner.toggleFlash(false);
+        mrzScanner.enableScanFromGallery(false);
+        MRZScanner.setEnableUpsideDownScanning(true);
+        //mrzScanner.setScanningRectangle(5,35,90,30); //Por defecto
+        //mrzScanner.setCustomImageOverlay(R.drawable.logo_gehd);
+        MRZScanner.setIgnoreInvalidCheckDigitsEnabled(true);
+        mrzScanner.setShowFlashButton(true);
+
+
+
+
         //MRZScanner.registerWithLicenseKey(this, "FAB6EFBBE1807CE52B8DA98ED3C1290BD076F75F0D604B820ADF9113CA78C89EF43DDBA01C98510F42005F2B80E37597");
         MRZScanner.registerWithLicenseKey(this, "14FF5B9FF1AE457B370122C3ABD9625C69BF96CD0C391838037E8A34AA61B696F8B1F3C5B3CF7150FC20929F8F25E09EF43DDBA01C98510F42005F2B80E37597", new MRZLicenceResultListener() {
             @Override
@@ -177,6 +188,13 @@ public class ScannerActivity extends AppCompatActivity implements MRZScannerList
             public void successfulScanWithDocumentImage(Bitmap bitmap) {
                 //sendResultImage(bitmap);
             }
+
+//            @Override
+            public void  successfulIdFrontImageScan(Bitmap fullImage, Bitmap portrait) {
+                //successfulScanWithImages(fullImage, portrait);
+
+            }
+
            @Override
             public void scanImageFailed() {
 

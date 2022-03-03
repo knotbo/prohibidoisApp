@@ -54,6 +54,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.scansolutions.mrzscannerlib.MRZScanner;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -85,8 +86,9 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
     Button backBtn,imprimirBtn;
 
     EditText editNombre, editApellidos, editDocNum, editOtroBanco, editImporte;
-    TextView datosCliente, txtOtroBanco;
-    Spinner spinner;
+    TextView datosCliente, txtOtroBanco, txtUltSolicitudEfectivo;
+    Spinner spinnerBanco,  spinnerUltSolicitudes;
+
 
 
     @Override
@@ -102,22 +104,24 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
         editNombre = findViewById(R.id.edit_given_name);
         editApellidos = findViewById(R.id.edit_surname);
         editDocNum = findViewById(R.id.edit_document_number);
+        txtUltSolicitudEfectivo = findViewById(R.id.txt_ultimasSolicitudes);
         txtOtroBanco = findViewById(R.id.txt_otro_banco);
         editOtroBanco = findViewById(R.id.edit_otro_banco);
         editImporte = findViewById(R.id.edit_importe);
 
-        spinner = findViewById(R.id.spinner_banco);
+        spinnerBanco = findViewById(R.id.spinner_banco);
+        spinnerUltSolicitudes = findViewById(R.id.spinner_ultimasSolicitudes);
 
         backBtn.setOnClickListener(this);
         imprimirBtn.setOnClickListener(this);
         datosCliente.setOnClickListener(this);
 
-        String[] lista_bancos={"Seleccione Banco", "SANTANDER", "LA CAIXA", "BBVA", "SABADELL", "UNICAJA", "BANKINTER", "ABANCA", "KUTXABANK", "CAJAMAR", "IBERCAJA", "BANCA MARCH", "Otro..."};
+        String[] lista_bancos={"Seleccione Banco", "SANTANDER", "LA CAIXA", "BBVA", "SABADELL", "UNICAJA", "BANKINTER", "CAJA RURAL", "ABANCA", "KUTXABANK", "CAJAMAR", "IBERCAJA", "BANCA MARCH", "Otro..."};
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, lista_bancos);
-        spinner.setAdapter(adapter);
+        spinnerBanco.setAdapter(adapter);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerBanco.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view,
                                        int position, long id) {
@@ -131,6 +135,33 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
                 }else{
                     txtOtroBanco.setVisibility(View.GONE);
                     editOtroBanco.setVisibility(View.GONE);
+                }
+
+                checkForm();
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+        spinnerUltSolicitudes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view,
+                                       int position, long id) {
+                Object item = adapterView.getItemAtPosition(position);
+                if ( !item.toString().contains("Últimas Solicitudes") ){
+                    String[] parts = item.toString().split(",");
+
+                    if(parts.length == 3) {
+                        editDocNum.setText(parts[0]);
+                        editApellidos.setText(parts[1]);
+                        editNombre.setText(parts[2]);
+                    }
+
                 }
 
                 checkForm();
@@ -219,6 +250,7 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
             }
         });
 
+
         startScanner();
 
     }
@@ -230,6 +262,9 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
         editDocNum.setText(successfulMrzScan.getString("document_number"));
 
         //Submit();
+
+
+
     }
 
 
@@ -238,8 +273,8 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
             && editApellidos.getText().length() > 3
             && editDocNum.getText().length() > 3
             && editImporte.getText().length() > 0
-            && !spinner.getSelectedItem().toString().equals("Seleccione Banco")
-            && !(spinner.getSelectedItem().toString().equals("Otro...") && editOtroBanco.getText().length() <= 2)
+            && !spinnerBanco.getSelectedItem().toString().equals("Seleccione Banco")
+            && !(spinnerBanco.getSelectedItem().toString().equals("Otro...") && editOtroBanco.getText().length() <= 2)
         ){
             imprimirBtn.setEnabled(true);
         }else{
@@ -256,6 +291,8 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
                 JSONObject jsonObj = new JSONObject(requiredValue);
 
                 addResultToEditText(jsonObj);
+            }else{
+                getUltimasSolicitudes();
             }
         } catch (Exception ex) {
             Toast.makeText(this, "Fallo en el resultado de la actividad\r\n" + MRZScanner.sdkVersion(),
@@ -299,19 +336,11 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
         startActivityForResult(new Intent(getApplicationContext(),ScannerActivity.class),REQUEST_CODE);
     }
 
+    private void getUltimasSolicitudes(){
 
-    private void Submit(){
-        String banco="";
-        if (spinner.getSelectedItem().toString() != "Otro..." ){
-            banco = spinner.getSelectedItem().toString();
-        }else{
-            banco = editOtroBanco.getText().toString();
-        }
 
-        imprimirSolicitudEfectivo(getApplicationContext(), editDocNum.getText().toString(),  editNombre.getText().toString(),  editApellidos.getText().toString(),  banco, editImporte.getText().toString() );
-        /*
         //URL of the request we are sending
-        StringRequest postRequest = new StringRequest(Request.Method.POST, MainActivity.getUrlEfectivo(),
+        StringRequest postRequest = new StringRequest(Request.Method.POST, "https://www.seronuba.es/pedidosv2/solicitudesEfectivo/app/ultSolicitudes.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -336,11 +365,18 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
                             // En los datos que recibo verifico si obtengo el estado o 'status' con el valor 'true'
                             // El dato 'status' con el valor 'true' se encuentra dentro del archivo JSON
                             if (jsonObject.getString("status").equals("true")) {
-                                resultado_correcto=jsonObject.getBoolean("resultado_correcto");
-                                permitido=jsonObject.getBoolean("acceso_permitido");
-                                mensaje=jsonObject.getString("mensaje");
-                                numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
-                                certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
+                                JSONArray arrayResultado=jsonObject.getJSONArray("resultado");
+                                ArrayList lista_ultimasSolicitudes=new ArrayList<String>();
+
+                                lista_ultimasSolicitudes.add("Últimas Solicitudes " + "(" + arrayResultado.length() + ")");
+
+                                for(int i=0;i<arrayResultado.length();i++) {
+                                    JSONObject object1=arrayResultado.getJSONObject(i);
+                                    lista_ultimasSolicitudes.add(object1.getString( "dni") +  ", " + object1.getString("apellidos") + ", " + object1.getString("nombre"));
+                                    //textView.setText(object1.toString());
+                                }
+                                ArrayAdapter<String> adapter2 = new ArrayAdapter<>(ScannedSolicitudEfectivoActivity.this, R.layout.support_simple_spinner_dropdown_item, lista_ultimasSolicitudes);
+                                spinnerUltSolicitudes.setAdapter(adapter2);
                             }else{
                                 if(jsonObject.getString("status").equals("true")) {
                                     resultado_correcto=false;
@@ -360,93 +396,15 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
                             //toast.show();
                         }
 
-
-                        int estilo = R.style.MyDialogThemeProhibido;
-
-                        String titulo;
-                        int icono;
-                        if(resultado_correcto == true && permitido == true) {
-                            estilo = R.style.MyDialogThemePermitido;
-                            titulo="Accceso Permitido";
-                            icono=R.drawable.ic_baseline_check_circle_24;
-                            if(MainActivity.getPromociones() == true && MainActivity.getImprimirVales() == true && numAccesosHoy == 1) { //Primer acceso del día
-                                imprimir(getApplicationContext(), editDocNum.getText().toString());
-                                titulo="Accceso Permitido + VALE";
-                                mensaje=mensaje+"\n\n\n\n IMPRIMIENDO VALE";
-                            }
+                        if(editDocNum.getText().length() == 0) {
+                            txtUltSolicitudEfectivo.setVisibility(View.VISIBLE);
+                            spinnerUltSolicitudes.setVisibility(View.VISIBLE);
                         }else{
-                            if (resultado_correcto == true && permitido == false) {
-                                estilo = R.style.MyDialogThemeProhibido;
-                                titulo="Acceso Denegado";
-                                icono=R.drawable.ic_baseline_not_interested_24;
-                            }else{
-                                estilo = R.style.MyDialogThemeNeutral;
-                                titulo="Resultado";
-                                icono=R.drawable.ic_baseline_info_24;
-                            }
+                            txtUltSolicitudEfectivo.setVisibility(View.GONE);
+                            spinnerUltSolicitudes.setVisibility(View.GONE);
                         }
 
 
-                        final AlertDialog.Builder alertOpciones = new AlertDialog.Builder(ScannedSolicitudEfectivoActivity.this, estilo );
-
-                        alertOpciones.setTitle(titulo);
-                        alertOpciones.setIcon(icono);
-                        alertOpciones.setMessage(Html.fromHtml(mensaje));
-                        alertOpciones.setCancelable(false);
-                        alertOpciones.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-
-                        alertOpciones.setNeutralButton("LEER DE NUEVO", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startScanner();
-                            }
-                        });
-
-                        if(certificadoCovid == false) {
-                            alertOpciones.setNegativeButton("Certificar", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent i;
-                                    PackageManager manager = getPackageManager();
-                                    try {
-                                        i = manager.getLaunchIntentForPackage("ch.admin.bag.covidcertificate.verifier");
-                                        if (i == null)
-                                            throw new PackageManager.NameNotFoundException();
-                                        i.addCategory(Intent.CATEGORY_LAUNCHER);
-                                        startActivity(i);
-                                    } catch (PackageManager.NameNotFoundException e) {
-
-                                    }
-                                    alertOpciones.show();
-                                    ((TextView) alertOpciones.show().findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-                                }
-                            });
-                        }
-
-                        AlertDialog dialog = alertOpciones.show();
-
-                        TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
-                        messageText.setTextSize(18);
-                        messageText.setGravity(Gravity.CENTER);
-                        dialog.show();
-                        ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////////////
 
                     }
                 },
@@ -485,22 +443,27 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
             {
                 Map<String, String>  params = new HashMap<>();
                 // the POST parameters:
-                params.put("dni", editDocNum.getText().toString());
-                params.put("nombre", editNombre.getText().toString());
-                params.put("apellidos", editApellidos.getText().toString());
-                params.put("banco", spinner.getSelectedItem().toString());
-                params.put("dispositivo", MainActivity.getIdentificadorAndroid());
                 params.put("usuario", MainActivity.getUsuario());
-                params.put("provincia", MainActivity.getProvincia());
-                params.put("version", MainActivity.getVersion());
-
 
                 return params;
             }
         };
         Volley.newRequestQueue(this).add(postRequest);
 
-         */
+
+    }
+
+
+    private void Submit(){
+        String banco="";
+        if (spinnerBanco.getSelectedItem().toString() != "Otro..." ){
+            banco = spinnerBanco.getSelectedItem().toString();
+        }else{
+            banco = editOtroBanco.getText().toString();
+        }
+
+        imprimirSolicitudEfectivo(getApplicationContext(), editDocNum.getText().toString(),  editNombre.getText().toString(),  editApellidos.getText().toString(),  banco, editImporte.getText().toString() );
+
     }
 
     public void imprimirSolicitudEfectivo(final Context context, final String dni, final String nombre, final String apellidos, final String banco, final String importe){

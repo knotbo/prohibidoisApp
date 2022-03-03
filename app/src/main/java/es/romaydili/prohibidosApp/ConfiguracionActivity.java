@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 //import com.romaydili.prohibidosApp.MainActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.scansolutions.mrzscannerlib.MRZScanner;
 import com.squareup.timessquare.CalendarPickerView;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,7 +49,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
     List<Date> selectedDate;
     EditText adavancePay;
     TextView totalAmount;
-    TextView androidID, configuracion,provincia,ultActualizacion,ficheroUltActualizacion,numProhibidosUltActualizacion,usuario_txt;
+    TextView androidID, configuracion,provincia,ultActualizacion,ficheroUltActualizacion,numProhibidosUltActualizacion,usuario_txt, label_sdk, text_sdk;
     EditText usuario_edit;
     CheckBox scannerInicial,debugMode,imprimirVales,ocultarInfo,beep;
     Boolean editando_usuario=false;
@@ -87,6 +88,8 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         ocultarInfo=findViewById(R.id.ocultarInfo_ckBox);
         usuario_edit=findViewById(R.id.usuario_edit);
         usuario_txt=findViewById(R.id.usuario_txt);
+        label_sdk=findViewById(R.id.label_sdk);
+        text_sdk=findViewById(R.id.text_sdk);
 
 
         configuracion.setOnClickListener(this);
@@ -117,6 +120,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
             provincia.setText(MainActivity.getProvincia());
             ficheroUltActualizacion.setText(MainActivity.getFicheroUltActualizacion());
             numProhibidosUltActualizacion.setText(MainActivity.getNumProhibidosUltActualizacion());
+            text_sdk.setText(MRZScanner.sdkVersion());
         }
 
 
@@ -204,6 +208,8 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
                 debugMode.setVisibility(View.VISIBLE);
                 usuario_edit.setVisibility(View.VISIBLE);
                 usuario_txt.setVisibility(View.VISIBLE);
+                label_sdk.setVisibility(View.VISIBLE);
+                text_sdk.setVisibility(View.VISIBLE);
             }
         }
 
