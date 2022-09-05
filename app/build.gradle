@@ -14,7 +14,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 5
-        versionName "0.4.2.1" //Versión con Solicitud de Efectivo
+        versionName "0.4.3.0" //Versión con Solicitud de Efectivo
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

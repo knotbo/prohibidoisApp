@@ -410,6 +410,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                         String mensaje="";
                         String mensajeProhibidoDispositivo="";
                         int numAccesosHoy=-1;
+                        boolean imprimirPromocion=false;
 
                         // Creo un array con los datos JSON que he obtenido
                         ArrayList listaArray = new ArrayList<>();
@@ -428,6 +429,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                                 prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
                                 mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
+                                imprimirPromocion = jsonObject.getBoolean("promocion");
                             }else{
                                 if(jsonObject.getString("status").equals("true")) {
                                     resultado_correcto=false;
@@ -460,7 +462,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             estilo = R.style.MyDialogThemePermitido;
                             titulo="Accceso Permitido";
                             icono=R.drawable.ic_baseline_check_circle_24;
-                            if(MainActivity.getPromociones() == true && MainActivity.getImprimirVales() == true && numAccesosHoy == 1) { //Primer acceso del día
+                            if( MainActivity.getImprimirVales() == true && imprimirPromocion == true ) {
                                 imprimir(getApplicationContext(), documento);
                                 titulo="Accceso Permitido + VALE";
                                 mensaje=mensaje+"\n\n\n\nIMPRIMIENDO VALE";
@@ -589,7 +591,9 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                         boolean prohibidoDispositivo = false; //mensaje de prohibido en el dispositivo
                         String mensaje="";
                         String mensajeProhibidoDispositivo="";
+                        Boolean solicitarJugador = false; //Encuesta si el cliente es Jugador
                         int numAccesosHoy=-1;
+                        boolean imprimirPromocion=false;
 
                         // Creo un array con los datos JSON que he obtenido
                         ArrayList listaArray = new ArrayList<>();
@@ -608,6 +612,8 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                                 prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
                                 mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
+                                solicitarJugador=jsonObject.getBoolean("solicitarJugador");
+                                imprimirPromocion=jsonObject.getBoolean("promocion");
                             }else{
                                 if(jsonObject.getString("status").equals("true")) {
                                     resultado_correcto=false;
@@ -639,7 +645,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             estilo = R.style.MyDialogThemePermitido;
                             titulo="Accceso Permitido";
                             icono=R.drawable.ic_baseline_check_circle_24;
-                            if(MainActivity.getPromociones() == true && MainActivity.getImprimirVales() == true && numAccesosHoy == 1) { //Primer acceso del día
+                            if( MainActivity.getImprimirVales() == true && imprimirPromocion == true ) {
                                 imprimir(getApplicationContext(), editDocNum.getText().toString());
                                 titulo="Accceso Permitido + VALE";
                                 mensaje=mensaje+"\n\n\n\n IMPRIMIENDO VALE";
@@ -721,6 +727,33 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                         dialog.show();
                         ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 
+                        //Alert opciones Jugador 30/08/22
+                        if ( MainActivity.getVersion().equals("SerOnuba") && resultado_correcto == true && permitido == true && solicitarJugador == true) {
+                            final CharSequence[] OPCIONES_ALERTA = {"Jugador Fuerte", "Jugador Frecuente", "Jugador Ocasional", "No Juega", "No lo sé"};
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ScannedActivity.this, R.style.Theme_AppCompat_Dialog);
+                            //builder.setTitle(titulo);
+                            builder.setIcon(R.drawable.ic_baseline_question_answer_24);
+                            //builder.setMessage("Seleccione una de las siguientes opciones:");
+                            builder.setCancelable(false);
+                            builder.setTitle("¿El Cliente es Jugador de Máquinas?");
+                            builder.setItems(OPCIONES_ALERTA, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // which representa el índice del arreglo de opciones
+                                    String eleccion = OPCIONES_ALERTA[which].toString();
+                                    // Aquí puedes mostrar la elección o hacer lo que sea con ella.
+                                    //Toast.makeText(ScannedActivity.this, "Elegiste: " + eleccion + ' ' + MainActivity.getVersion(), Toast.LENGTH_SHORT).show();
+                                    MainActivity.guardarJugador(getApplicationContext(), editDocNum.getText().toString(), eleccion);
+                                    // En el click se descarta el diálogo
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            builder.show();
+                        }
+                        //Fin Alert opciones 30/08/22
+
                         //Custom AlertDialog DESACTIVADO
                         /*
                         //before inflating the custom alert dialog layout, we will get the current activity viewgroup
@@ -799,20 +832,20 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                 // the POST parameters:
                 params.put( "nacionalidad", editNationallity.getText().toString() );
                 params.put( "fecha_nacimiento", editDateOfBirth.getText().toString());
-                params.put("dni", editDocNum.getText().toString());
-                params.put("nombre", editGivenName.getText().toString());
-                params.put("apellidos", surName.getText().toString());
-                params.put("sexo", editSex.getText().toString());
-                params.put("caducidad_dni", editExporationDate.getText().toString());
-                params.put("opcional", editOptionalVal.getText().toString());
-                params.put("pais_origen", editIssuingCount.getText().toString());
-                params.put("mrz_completo", editRawMrz.getText().toString());
-                params.put("tipo_documento", tipo_documento);
-                params.put("fecha_expedicion", editIssuingDate.getText().toString());
-                params.put("dispositivo", MainActivity.getIdentificadorAndroid());
-                params.put("usuario", MainActivity.getUsuario());
-                params.put("provincia", MainActivity.getProvincia());
-                params.put("version", MainActivity.getVersion());
+                params.put( "dni", editDocNum.getText().toString());
+                params.put( "nombre", editGivenName.getText().toString());
+                params.put( "apellidos", surName.getText().toString());
+                params.put( "sexo", editSex.getText().toString());
+                params.put( "caducidad_dni", editExporationDate.getText().toString());
+                params.put( "opcional", editOptionalVal.getText().toString());
+                params.put( "pais_origen", editIssuingCount.getText().toString());
+                params.put( "mrz_completo", editRawMrz.getText().toString());
+                params.put( "tipo_documento", tipo_documento);
+                params.put( "fecha_expedicion", editIssuingDate.getText().toString());
+                params.put( "dispositivo", MainActivity.getIdentificadorAndroid());
+                params.put( "usuario", MainActivity.getUsuario());
+                params.put( "provincia", MainActivity.getProvincia());
+                params.put( "version", MainActivity.getVersion());
 
 
                 return params;
@@ -927,7 +960,12 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
+
+
 }
+
+
+
 
 
 class MyPrintDocumentAdapter extends PrintDocumentAdapter

@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static boolean scanner_inicial;
     private static boolean ocultarInfo;
     private static boolean imprimir_vales;
-    private static boolean promociones = false; //promociones de vales activas o no
     private static Boolean debugMode = false;
     private static Boolean beep = false;
     private static Boolean activado = false;
@@ -133,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static String url_documento;
     private static String url_mrz;
     private static String url_efectivo;
+    private static String url_jugador;
     private Boolean actualizacion_disponible = false;
     private Boolean actualizacion_permitir = false;
     private String url_actualizacion, mensaje_actualizacion;
@@ -205,12 +205,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return url_documento;
     }
 
-    public static boolean getImprimirVales() {
-        return imprimir_vales;
+    public static String getUrlJugador() {
+        return url_jugador;
     }
 
-    public static boolean getPromociones() {
-        return promociones;
+    public static boolean getImprimirVales() {
+        return imprimir_vales;
     }
 
     public static void setImprimirVales(boolean nuevoEstado) {
@@ -231,6 +231,83 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public static String getIpServidor() {
         return ipServidor;
+    }
+
+    public static void guardarJugador(final Context contexto, final String documento,final String nivelJuego) {
+        //URL of the request we are sending
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, MainActivity.getUrlJugador(),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        boolean resultado_correcto = false;
+                        String mensaje = "";
+
+                        // Creo un array con los datos JSON que he obtenido
+                        ArrayList listaArray = new ArrayList<>();
+
+                        // Solicito los datos al archivo JSON
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+
+                            // En los datos que recibo verifico si obtengo el estado o 'status' con el valor 'true'
+                            // El dato 'status' con el valor 'true' se encuentra dentro del archivo JSON
+                            if (jsonObject.getString("status").equals("true")) {
+                                resultado_correcto = jsonObject.getBoolean("resultado_correcto");
+                                mensaje = jsonObject.getString("mensaje");
+                            } else {
+                                if (jsonObject.getString("status").equals("true")) {
+                                    resultado_correcto = false;
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+
+                            final Toast toast = Toast.makeText(contexto, "Error procesando JSON", Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+
+                        if (MainActivity.getDebugMode() == true) {
+                            final Toast toast = Toast.makeText(contexto, response, Toast.LENGTH_LONG);
+                            toast.show();
+                            //}else{
+                            //final Toast toast = Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_LONG);
+                            //toast.show();
+                        }else{
+                            final Toast toast = Toast.makeText(contexto, mensaje, Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        Context context = contexto;
+                        CharSequence text = "Compruebe su Conexión a Internet:\r\n\r\n" + error.toString();
+                        int duration = Toast.LENGTH_SHORT;
+
+                        final Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                // the POST parameters:
+                params.put("documento", documento);
+                params.put("dispositivo", MainActivity.getIdentificadorAndroid());
+                params.put("usuario", MainActivity.getUsuario());
+                params.put("version", MainActivity.getVersion());
+                params.put("es_jugador", nivelJuego);
+
+                return params;
+            }
+        };
+        Volley.newRequestQueue( contexto ).add(postRequest);
     }
 
 
@@ -506,7 +583,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         boolean prohibidoDispositivo = false; //mensaje de prohibido en el dispositivo
                         String mensaje = "";
                         String mensajeProhibidoDispositivo = "";
+                        Boolean solicitarJugador = false; //Encuesta si el cliente es Jugador
                         int numAccesosHoy = -1;
+                        boolean imprimirPromocion=false;
 
                         // Creo un array con los datos JSON que he obtenido
                         ArrayList listaArray = new ArrayList<>();
@@ -525,6 +604,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                                 prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
                                 mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
+                                solicitarJugador=jsonObject.getBoolean("solicitarJugador");
+                                imprimirPromocion=jsonObject.getBoolean("promocion");
                             } else {
                                 if (jsonObject.getString("status").equals("true")) {
                                     resultado_correcto = false;
@@ -556,7 +637,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             estilo = R.style.MyDialogThemePermitido;
                             titulo = "Accceso Permitido";
                             icono = R.drawable.ic_baseline_check_circle_24;
-                            if (promociones == true && imprimir_vales == true && numAccesosHoy == 1) { //Primer acceso del día
+                            if ( imprimir_vales == true && imprimirPromocion == true ) {
                                 imprimir(getApplicationContext(), documento);
                                 titulo = "Accceso Permitido + VALE";
                                 mensaje = mensaje + "\n\n\n\nIMPRIMIENDO VALE";
@@ -632,6 +713,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         messageText.setTextSize(18);
                         dialog.show();
                         ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+
+
+                        //Alert opciones Jugador 30/08/22
+                        if ( MainActivity.getVersion().equals("SerOnuba") && resultado_correcto == true && permitido == true && solicitarJugador == true) {
+                            final CharSequence[] OPCIONES_ALERTA = {"Jugador Fuerte", "Jugador Frecuente", "Jugador Ocasional", "No Juega", "No lo sé"};
+
+                            androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Dialog);
+                            //builder.setTitle(titulo);
+                            builder.setIcon(R.drawable.ic_baseline_question_answer_24);
+                            //builder.setMessage("Seleccione una de las siguientes opciones:");
+                            builder.setCancelable(false);
+                            builder.setTitle("¿El Cliente es Jugador de Máquinas?");
+                            builder.setItems(OPCIONES_ALERTA, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // which representa el índice del arreglo de opciones
+                                    String eleccion = OPCIONES_ALERTA[which].toString();
+                                    // Aquí puedes mostrar la elección o hacer lo que sea con ella.
+                                    //Toast.makeText(ScannedActivity.this, "Elegiste: " + eleccion + ' ' + MainActivity.getVersion(), Toast.LENGTH_SHORT).show();
+                                    guardarJugador(getApplicationContext(), documento, eleccion);
+                                    // En el click se descarta el diálogo
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            builder.show();
+                        }
+                        //Fin Alert opciones 30/08/22
                     }
                 },
                 new Response.ErrorListener() {
@@ -669,7 +778,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String url_servidor = "ce-juegos.es/";
         String url2 = "App";
-        String url_Version = "/v0.4.2";
+        String url_Version = "/v" + version.substring(0,5); //"/v0.4.2";
         String url_script = "/ult_actualizacion";
         String url_lenguaje = ".php";
 
@@ -852,6 +961,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 url_mrz = jsonObject.getString("url_mrz");
                 if ( versionApp.equals("SerOnuba") ){
                     url_efectivo = jsonObject.getString("url_efectivo");
+                    url_jugador = jsonObject.getString("url_jugador");
                 }
 
                 fechaUltActualizacion = jsonObject.getString("ultActualizacion");
@@ -865,9 +975,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 actualizacion_disponible = jsonObject.getBoolean("actualizacion_disponible");
                 mensaje_actualizacion = jsonObject.getString("actualizacion_mensaje");
                 url_actualizacion = jsonObject.getString("actualizacion_url");
-                promociones = jsonObject.getBoolean("promociones");
-
-
 
 
                 /*
@@ -1004,6 +1111,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         thread.start();
 
          */
+
+
     }
 
 

@@ -116,7 +116,8 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
         imprimirBtn.setOnClickListener(this);
         datosCliente.setOnClickListener(this);
 
-        String[] lista_bancos={"Seleccione Banco", "SANTANDER", "LA CAIXA", "BBVA", "SABADELL", "UNICAJA", "BANKINTER", "CAJA RURAL", "ABANCA", "KUTXABANK", "CAJAMAR", "IBERCAJA", "BANCA MARCH", "Otro..."};
+        //String[] lista_bancos={"Seleccione Banco", "SANTANDER", "LA CAIXA", "BBVA", "SABADELL", "UNICAJA", "BANKINTER", "CAJA RURAL", "ABANCA", "KUTXABANK", "CAJAMAR", "IBERCAJA", "BANCA MARCH", "Otro..."};
+        String[] lista_bancos={"Seleccione Banco", "LA CAIXA", "BBVA", "ING", "CAJA RURAL", "SANTANDER", "CAJASUR", "DEUTSCHE BANK", "BANKIA", "UNICAJA", "BARCLAYS", "WIZINK", "KUTXABANK", "CAJAMAR", "CORREOS", "Otro..."};
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item, lista_bancos);
         spinnerBanco.setAdapter(adapter);
@@ -269,8 +270,8 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
 
 
     private void checkForm(){
-        if (editNombre.getText().length() > 3
-            && editApellidos.getText().length() > 3
+        if (editNombre.getText().length() > 0
+            && editApellidos.getText().length() > 0
             && editDocNum.getText().length() > 3
             && editImporte.getText().length() > 0
             && !spinnerBanco.getSelectedItem().toString().equals("Seleccione Banco")
@@ -340,7 +341,7 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
 
 
         //URL of the request we are sending
-        StringRequest postRequest = new StringRequest(Request.Method.POST, "https://www.seronuba.es/pedidosv2/solicitudesEfectivo/app/ultSolicitudes.php",
+        StringRequest postRequest = new StringRequest(Request.Method.POST, MainActivity.getUrlEfectivo(),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
