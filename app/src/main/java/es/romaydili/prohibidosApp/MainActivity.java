@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -433,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (view == button_comprobar) {
             spinner.setVisibility(View.INVISIBLE);
-            solicitar_dni();
+            solicitar_dni(this);
         }
 
         if (view == button_scanner) {
@@ -469,14 +470,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-    public void solicitar_dni() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+    public static void solicitar_dni( final Context contexto) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(contexto);
 
         builder.setIcon(android.R.drawable.ic_menu_search);
         builder.setTitle("Comprobar Identificación");
         builder.setMessage("Introduzca DNI, NIE o Pasaporte\r\n(Sin espacios ni guiones)");
         // Set `EditText` to `dialog`. You can add `EditText` from `xml` too.
-        final EditText input = new EditText(MainActivity.this);
+        final EditText input = new EditText(contexto);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
@@ -488,24 +489,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onClick(DialogInterface arg0, int arg1) {
                         String m_Text = input.getText().toString().toUpperCase();
 
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        InputMethodManager imm = (InputMethodManager) contexto.getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                         String reg = "^[a-zA-Z0-9]*$";
                         if (m_Text.matches(reg) && m_Text.length() >= 4 && m_Text.length() <= 12) {
-                            comprobar_dni(m_Text);
+                            comprobar_dni(m_Text, contexto);
                             //final Toast toast = Toast.makeText(getApplicationContext(), "Comprobando " + m_Text, Toast.LENGTH_SHORT);
                             //toast.show();
                         } else {
                             if (m_Text.length() < 4) {
-                                final Toast toast = Toast.makeText(getApplicationContext(), "Introduzca al menos 4 caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
+                                final Toast toast = Toast.makeText(contexto, "Introduzca al menos 4 caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
                                 toast.show();
                             }
                             if (m_Text.length() > 12) {
-                                final Toast toast = Toast.makeText(getApplicationContext(), "Introduzca Menos de 12 caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
+                                final Toast toast = Toast.makeText(contexto, "Introduzca Menos de 12 caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
                                 toast.show();
                             }
                             if (!m_Text.matches(reg)) {
-                                final Toast toast = Toast.makeText(getApplicationContext(), "Introduzca Sólo dígitos y caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
+                                final Toast toast = Toast.makeText(contexto, "Introduzca Sólo dígitos y caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
                                 toast.show();
                             }
                         }
@@ -524,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE)
                 .setEnabled(false);
         input.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) contexto.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 // OR you can use here setOnShowListener to disable button at first
 // time.
@@ -538,12 +539,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                 if (!s.toString().matches(reg)) {
-                    final Toast toast = Toast.makeText(getApplicationContext(), "Introduzca Sólo dígitos y caracteres", Toast.LENGTH_SHORT);
+                    final Toast toast = Toast.makeText(contexto, "Introduzca Sólo dígitos y caracteres", Toast.LENGTH_SHORT);
                     toast.show();
                 }
 
                 if (s.length() > 12) {
-                    final Toast toast = Toast.makeText(getApplicationContext(), "Introduzca Menos de 12 caracteres", Toast.LENGTH_SHORT);
+                    final Toast toast = Toast.makeText(contexto, "Introduzca Menos de 12 caracteres", Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }
@@ -570,7 +571,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void comprobar_dni(final String documento) {
+    private static void comprobar_dni(final String documento, final Context contexto) {
         //URL of the request we are sending
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url_documento,
@@ -584,7 +585,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         String mensaje = "";
                         String mensajeProhibidoDispositivo = "";
                         Boolean solicitarJugador = false; //Encuesta si el cliente es Jugador
-                        int numAccesosHoy = -1;
+                        //int numAccesosHoy = -1;
                         boolean imprimirPromocion=false;
 
                         // Creo un array con los datos JSON que he obtenido
@@ -600,7 +601,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 resultado_correcto = jsonObject.getBoolean("resultado_correcto");
                                 permitido = jsonObject.getBoolean("acceso_permitido");
                                 mensaje = jsonObject.getString("mensaje");
-                                numAccesosHoy = jsonObject.getInt("num_accesos_hoy");
+                                //numAccesosHoy = jsonObject.getInt("num_accesos_hoy");
                                 //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                                 prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
                                 mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
@@ -615,12 +616,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } catch (JSONException e) {
                             e.printStackTrace();
 
-                            final Toast toast = Toast.makeText(getApplicationContext(), "Error procesando JSON", Toast.LENGTH_LONG);
+                            final Toast toast = Toast.makeText(contexto, "Error procesando JSON", Toast.LENGTH_LONG);
                             toast.show();
                         }
 
                         if (MainActivity.getDebugMode() == true) {
-                            final Toast toast = Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG);
+                            final Toast toast = Toast.makeText(contexto, response, Toast.LENGTH_LONG);
                             toast.show();
                             //}else{
                             //final Toast toast = Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_LONG);
@@ -638,7 +639,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             titulo = "Accceso Permitido";
                             icono = R.drawable.ic_baseline_check_circle_24;
                             if ( imprimir_vales == true && imprimirPromocion == true ) {
-                                imprimir(getApplicationContext(), documento);
+                                imprimir(documento, contexto);
                                 titulo = "Accceso Permitido + VALE";
                                 mensaje = mensaje + "\n\n\n\nIMPRIMIENDO VALE";
                             }
@@ -655,7 +656,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
 
 
-                        final AlertDialog.Builder alertOpciones = new AlertDialog.Builder(MainActivity.this, estilo);
+                        final AlertDialog.Builder alertOpciones = new AlertDialog.Builder(contexto, estilo);
 
                         alertOpciones.setTitle(titulo);
                         alertOpciones.setIcon(icono);
@@ -663,13 +664,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         alertOpciones.setMessage(Html.fromHtml(mensaje));
 
                         if (prohibidoDispositivo == true) {
-                            LinearLayout diagLayout = new LinearLayout(MainActivity.this);
+                            LinearLayout diagLayout = new LinearLayout(contexto);
                             diagLayout.setOrientation(LinearLayout.VERTICAL);
-                            TextView textoMensaje = new TextView(MainActivity.this);
+                            TextView textoMensaje = new TextView(contexto);
                             textoMensaje.setTextColor(Color.BLACK);
                             textoMensaje.setText(Html.fromHtml(mensajeProhibidoDispositivo));
                             textoMensaje.setPadding(30, 30, 10, 30);
-                            textoMensaje.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.peligro));
+                            textoMensaje.setBackgroundColor(ContextCompat.getColor(contexto, R.color.peligro));
                             textoMensaje.setGravity(Gravity.CENTER);
                             textoMensaje.setTextSize(30);
                             diagLayout.addView(textoMensaje);
@@ -719,7 +720,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if ( MainActivity.getVersion().equals("SerOnuba") && resultado_correcto == true && permitido == true && solicitarJugador == true) {
                             final CharSequence[] OPCIONES_ALERTA = {"Jugador Fuerte", "Jugador Frecuente", "Jugador Ocasional", "No Juega", "No lo sé"};
 
-                            androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this, R.style.Theme_AppCompat_Dialog);
+                            androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(contexto, R.style.Theme_AppCompat_Dialog);
                             //builder.setTitle(titulo);
                             builder.setIcon(R.drawable.ic_baseline_question_answer_24);
                             //builder.setMessage("Seleccione una de las siguientes opciones:");
@@ -732,7 +733,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     String eleccion = OPCIONES_ALERTA[which].toString();
                                     // Aquí puedes mostrar la elección o hacer lo que sea con ella.
                                     //Toast.makeText(ScannedActivity.this, "Elegiste: " + eleccion + ' ' + MainActivity.getVersion(), Toast.LENGTH_SHORT).show();
-                                    guardarJugador(getApplicationContext(), documento, eleccion);
+                                    guardarJugador(contexto, documento, eleccion);
                                     // En el click se descarta el diálogo
                                     dialog.dismiss();
                                 }
@@ -747,11 +748,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
-                        Context context = getApplicationContext();
+                        //Context context = getApplicationContext();
                         CharSequence text = "Compruebe su Conexión a Internet:\r\n\r\n" + error.toString();
                         int duration = Toast.LENGTH_SHORT;
 
-                        final Toast toast = Toast.makeText(context, text, duration);
+                        final Toast toast = Toast.makeText(contexto, text, duration);
                         toast.show();
                     }
                 }
@@ -769,7 +770,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return params;
             }
         };
-        Volley.newRequestQueue(this).add(postRequest);
+        Volley.newRequestQueue(contexto).add(postRequest);
     }
 
     private void ultima_actualizacion() {
@@ -955,26 +956,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // El dato 'status' con el valor 'true' se encuentra dentro del archivo JSON
             if (jsonObject.getString("status").equals("true")) {
                 activado = jsonObject.getBoolean("activado");
-                versionApp = jsonObject.getString("version");
+                if ( activado == true){
+                    versionApp = jsonObject.getString("version");
 
-                url_documento = jsonObject.getString("url_documento");
-                url_mrz = jsonObject.getString("url_mrz");
-                if ( versionApp.equals("SerOnuba") ){
-                    url_efectivo = jsonObject.getString("url_efectivo");
-                    url_jugador = jsonObject.getString("url_jugador");
+                    url_documento = jsonObject.getString("url_documento");
+                    url_mrz = jsonObject.getString("url_mrz");
+
+                    fechaUltActualizacion = jsonObject.getString("ultActualizacion");
+                    provincia = jsonObject.getString("provincia");
+                    ficheroUltActualizacion = jsonObject.getString("fichero");
+                    numProhibidosUltActualizacion = jsonObject.getString("numProhibidos");
+                    mensaje = jsonObject.getString("mensaje");
+
+                    actualizacion_permitir = jsonObject.getBoolean("actualizacion_permitir");
+                    actualizacion_disponible = jsonObject.getBoolean("actualizacion_disponible");
+                    mensaje_actualizacion = jsonObject.getString("actualizacion_mensaje");
+                    url_actualizacion = jsonObject.getString("actualizacion_url");
+
+                    if ( versionApp.equals("SerOnuba") ){
+                        url_efectivo = jsonObject.getString("url_efectivo");
+                        url_jugador = jsonObject.getString("url_jugador");
+                    }
                 }
 
-                fechaUltActualizacion = jsonObject.getString("ultActualizacion");
-                provincia = jsonObject.getString("provincia");
-                ficheroUltActualizacion = jsonObject.getString("fichero");
-                numProhibidosUltActualizacion = jsonObject.getString("numProhibidos");
-                mensaje = jsonObject.getString("mensaje");
-
-
-                actualizacion_permitir = jsonObject.getBoolean("actualizacion_permitir");
-                actualizacion_disponible = jsonObject.getBoolean("actualizacion_disponible");
-                mensaje_actualizacion = jsonObject.getString("actualizacion_mensaje");
-                url_actualizacion = jsonObject.getString("actualizacion_url");
 
 
                 /*
@@ -994,7 +998,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 */
 
             }else{
-                final Toast toast = Toast.makeText(getApplicationContext(), "Error estado JSON", Toast.LENGTH_LONG);
+                final Toast toast = Toast.makeText(getApplicationContext(), "Error resultado JSON", Toast.LENGTH_LONG);
                 toast.show();
             }
 
@@ -1008,13 +1012,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    public void imprimir(final Context context, final String msg) {
-
+    public static void imprimir(final String msg, final Context contexto) {
 
         final Thread thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
+
+
                 try (Socket socket = new Socket(ipServidor, 9090)) {
                     Log.i("Thread Impresión", "Thread Impresión Iniciado");
                     OutputStream output = socket.getOutputStream();
@@ -1028,34 +1033,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     final String respuesta = reader.readLine();
 
-                    runOnUiThread(new Runnable() {
+                    Log.i("Thread Impresión", "Respuesta Servidor: " + respuesta);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
                         public void run() {
-                            Toast.makeText(context, respuesta, Toast.LENGTH_LONG).show();
+                            // write your code here
+                            Toast.makeText(contexto, respuesta, Toast.LENGTH_LONG).show();
                         }
                     });
 
-                    //System.out.println("Acabo el Thread " + Thread.currentThread().getId());
-                    //socket.close();
+                    socket.close();
                     Log.i("Thread Impresión", "Thread Impresión finalizado");
                 } catch (final UnknownHostException ex) {
-                    System.out.println("Servidor no Encontrado: " + ex.getMessage());
+                    final String resultado="Servidor no Encontrado: " + ex.getMessage();
+                    Log.e("Thread Impresión", resultado);
 
-                    runOnUiThread(new Runnable() {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
                         public void run() {
-                            Toast.makeText(context, "Servidor no Encontrado: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(contexto, resultado, Toast.LENGTH_LONG).show();
                         }
                     });
 
                 } catch (final IOException ex) {
-                    System.out.println("I/O error: " + ex.getMessage());
-                    runOnUiThread(new Runnable() {
+                    final String resultado="I/O error: " + ex.getMessage();
+                    Log.e("Thread Impresión", resultado);
+
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
                         public void run() {
-                            Toast.makeText(context, "I/O Error: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(contexto, resultado, Toast.LENGTH_LONG).show();
                         }
                     });
+
                 }
             }
         });
+
         thread.start();
 
 
@@ -1172,12 +1186,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     fileLength=41500000;
                 }
 
-
-                String PATH = "/mnt/sdcard/Download/";
+                //String RutaInterna = getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS).toString();
+                String PATH = "/sdcard/Download/";
                 //String PATH = context.getFilesDir() + "/";
                 File file = new File(PATH);
                 file.mkdirs();
                 File outputFile = new File(file, "update_prohibidos.apk");
+                if(file.exists()){
+                    //Toast.makeText(context, "Ruta Existe", Toast.LENGTH_LONG).show();
+                }else{
+                    //Toast.makeText(context, "Ruta NO Existe", Toast.LENGTH_LONG).show();
+                }
                 if (outputFile.exists()) {
                     outputFile.delete();
                 }
@@ -1209,13 +1228,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                 intent = new Intent(Intent.ACTION_VIEW);
-                file = new File("/mnt/sdcard/Download/update_prohibidos.apk");
+                file = new File(PATH + "update_prohibidos.apk");
                 Uri data = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
                 intent.setDataAndType(data, "application/vnd.android.package-archive");
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
 
                 Log.i("UpdateAPP", "Actualización Completada! ");
+                progressBar.dismiss();
 
             } catch (final Exception e) {
                 Log.e("UpdateAPP", "Update error! " + e.getMessage());
@@ -1235,6 +1255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected void onPostExecute(final Boolean response) {
             //this.activity.startActivity( new Intent( this.activity.getBaseContext(), MainActivity.class ) );
             progressBar.hide();
+            progressBar.dismiss();
         }
 
         @Override
@@ -1249,7 +1270,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         private void checkFile() {
 
             //Path directory of the file we want to load.
-            File documentsPath = new File("/mnt/sdcard/Download/");
+            String PATH = "/sdcard/Download/";
+            File documentsPath = new File(PATH);
             //If documentsPath doesn´t exists, then create
             if (!documentsPath.exists()) {
                 Log.i(TAG, "create path: " + documentsPath);
@@ -1311,8 +1333,8 @@ class borrarUpdate extends AsyncTask<String, String, Boolean> {
                 checkFile();
             }
 
-
-            File documentsPath = new File("/mnt/sdcard/Download/update_prohibidos.apk");
+            String PATH = "/sdcard/Download/update_prohibidos.apk";
+            File documentsPath = new File(PATH);
             if (documentsPath.exists()) {
                 if(documentsPath.delete()){
                     Log.i(TAG, "Update Borrada");
@@ -1367,9 +1389,9 @@ class borrarUpdate extends AsyncTask<String, String, Boolean> {
     }
 
     private void checkFile(){
-
+        String PATH = "/sdcard/Download/";
         //Path directory of the file we want to load.
-        File documentsPath = new File("/mnt/sdcard/Download/");
+        File documentsPath = new File(PATH);
         //If documentsPath doesn´t exists, then create
         if (!documentsPath.exists()) {
             Log.i(TAG, "create path: " + documentsPath);

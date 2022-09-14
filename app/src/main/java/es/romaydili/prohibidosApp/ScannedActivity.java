@@ -228,8 +228,8 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         if (view==manualBtn){
-            //startActivity(new Intent(this,ProceedToCheckInActivity.class));
-            solicitar_dni();
+            //solicitar_dni();
+            MainActivity.solicitar_dni(this);
         }
 //        if (view==imgBtnFront){
 //            REQUEST_IMAGE_SCAN=2;
@@ -296,6 +296,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
         }
     };
 
+    /*
     public void solicitar_dni(){
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ScannedActivity.this);
 
@@ -395,7 +396,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
     }
-
+*/
     private void comprobar_dni(final String documento){
         //URL of the request we are sending
 
@@ -409,7 +410,8 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                         boolean prohibidoDispositivo = false; //mensaje de prohibido en el dispositivo
                         String mensaje="";
                         String mensajeProhibidoDispositivo="";
-                        int numAccesosHoy=-1;
+                        //int numAccesosHoy=-1;
+                        boolean solicitarJugador = false; //Encuesta si el cliente es Jugador
                         boolean imprimirPromocion=false;
 
                         // Creo un array con los datos JSON que he obtenido
@@ -425,10 +427,11 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 resultado_correcto=jsonObject.getBoolean("resultado_correcto");
                                 permitido=jsonObject.getBoolean("acceso_permitido");
                                 mensaje=jsonObject.getString("mensaje");
-                                numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
+                                //numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
                                 //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                                 prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
                                 mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
+                                solicitarJugador=jsonObject.getBoolean("solicitarJugador");
                                 imprimirPromocion = jsonObject.getBoolean("promocion");
                             }else{
                                 if(jsonObject.getString("status").equals("true")) {
@@ -463,7 +466,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             titulo="Accceso Permitido";
                             icono=R.drawable.ic_baseline_check_circle_24;
                             if( MainActivity.getImprimirVales() == true && imprimirPromocion == true ) {
-                                imprimir(getApplicationContext(), documento);
+                                MainActivity.imprimir(documento, ScannedActivity.this);
                                 titulo="Accceso Permitido + VALE";
                                 mensaje=mensaje+"\n\n\n\nIMPRIMIENDO VALE";
                             }
@@ -537,6 +540,33 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                         dialog.show();
                         ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 
+                        //Alert opciones Jugador 30/08/22
+                        if ( MainActivity.getVersion().equals("SerOnuba") && resultado_correcto == true && permitido == true && solicitarJugador == true) {
+                            final CharSequence[] OPCIONES_ALERTA = {"Jugador Fuerte", "Jugador Frecuente", "Jugador Ocasional", "No Juega", "No lo sé"};
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ScannedActivity.this, R.style.Theme_AppCompat_Dialog);
+                            //builder.setTitle(titulo);
+                            builder.setIcon(R.drawable.ic_baseline_question_answer_24);
+                            //builder.setMessage("Seleccione una de las siguientes opciones:");
+                            builder.setCancelable(false);
+                            builder.setTitle("¿El Cliente es Jugador de Máquinas?");
+                            builder.setItems(OPCIONES_ALERTA, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // which representa el índice del arreglo de opciones
+                                    String eleccion = OPCIONES_ALERTA[which].toString();
+                                    // Aquí puedes mostrar la elección o hacer lo que sea con ella.
+                                    //Toast.makeText(ScannedActivity.this, "Elegiste: " + eleccion + ' ' + MainActivity.getVersion(), Toast.LENGTH_SHORT).show();
+                                    MainActivity.guardarJugador(getApplicationContext(), editDocNum.getText().toString(), eleccion);
+                                    // En el click se descarta el diálogo
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            builder.show();
+                        }
+                        //Fin Alert opciones 30/08/22
+
                     }
                 },
                 new Response.ErrorListener() {
@@ -591,8 +621,8 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                         boolean prohibidoDispositivo = false; //mensaje de prohibido en el dispositivo
                         String mensaje="";
                         String mensajeProhibidoDispositivo="";
-                        Boolean solicitarJugador = false; //Encuesta si el cliente es Jugador
-                        int numAccesosHoy=-1;
+                        boolean solicitarJugador = false; //Encuesta si el cliente es Jugador
+                        //int numAccesosHoy=-1;
                         boolean imprimirPromocion=false;
 
                         // Creo un array con los datos JSON que he obtenido
@@ -608,7 +638,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 resultado_correcto=jsonObject.getBoolean("resultado_correcto");
                                 permitido=jsonObject.getBoolean("acceso_permitido");
                                 mensaje=jsonObject.getString("mensaje");
-                                numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
+                                //numAccesosHoy=jsonObject.getInt("num_accesos_hoy");
                                 //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
                                 prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
                                 mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
@@ -646,7 +676,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             titulo="Accceso Permitido";
                             icono=R.drawable.ic_baseline_check_circle_24;
                             if( MainActivity.getImprimirVales() == true && imprimirPromocion == true ) {
-                                imprimir(getApplicationContext(), editDocNum.getText().toString());
+                                MainActivity.imprimir(editDocNum.getText().toString(), ScannedActivity.this);
                                 titulo="Accceso Permitido + VALE";
                                 mensaje=mensaje+"\n\n\n\n IMPRIMIENDO VALE";
                             }
@@ -853,7 +883,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
         };
         Volley.newRequestQueue(this).add(postRequest);
     }
-
+/*
     public void imprimir(final Context context, final String msg){
 
 
@@ -957,7 +987,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
         thread.start();
 
          */
-    }
+    //}
 
 
 
@@ -967,7 +997,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
 
 
 
-
+/*
 class MyPrintDocumentAdapter extends PrintDocumentAdapter
     {
         Context context;
@@ -996,3 +1026,4 @@ class MyPrintDocumentAdapter extends PrintDocumentAdapter
 
     }
 
+*/

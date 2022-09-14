@@ -1,3 +1,107 @@
+/*
+
+Versión 0.4.3.1 (14/09/2022)
+------------------------
++ La función solicitar_dni() y comprobar_dni() han sido unificadas en MainActivity
++ La función imprimir() ha sido unificada en MainActivity
++ Revisión del sistema automático de actualización (Cambiando el PATH dónde se descarga la actualización)
++ Revisión del sistema automático de borrado del archivo de actualización (Cambiando el PATH dónde se descarga la actualización)
++ Solucionado que no se solicitara la encuesta a los Jugadores cuando se hacía la comprobación manual en la pantalla de los resultados de escaneo de un DNI
++ Corrección de errores
+
+
+Versión 0.4.3.0 (06/09/2021)
+------------------------
++ Añadido el Sistema de encuestas de Jugadores cuando el terminal recibe (solicitarJugador : "true")
++ Ahora no se manda a imprimir las promociones cuando es el primer acceso del día al local, es el servidor quién envía al terminal (promoción: "true")
++ Actualizada la lista de Bancos de las tarjetas de crédito para las solicitudes de efectivo
++ Corrección de errores
+
+Versión 0.4.2.1 (03/03/2022)
+------------------------
++ Añadido últimas solicitudes de Efectivo a las Solicitudes de Efectivo
++ Corrección de errores
+
+Versión 0.4.2.0 (21/02/2022)
+------------------------
++ Añadido solicitud de Efectivo para versiones SerOnuba
++ Ya no se comprueba el Certificado Covid
++ Corrección de errores
+
+Versión 0.4.1.0 Covid-19 (21/12/2021)
+------------------------
++ Versión que comprueba el Certificado Covid (También Prima Noelia)
++ Corrección de errores
+
+Versión 0.4.0.2 (05/11/2020)
+------------------------
++ Si hay una actualización disponible no hace efecto la configuración "Leer documento al iniciar la App", se queda en la pantalla de inicio
++ Añadida barra de progreso en la descarga de actualizaciones
++ Corrección de errores
+
+Versión 0.4.0.1 (27/10/2020)
+------------------------
++ Comprobación manual sólo admite números y letras, tampoco admite espacios
++ Los resultados del escaneo no pueden ser modificados
++ Añadidos iconos a los AlertDialog
++ Añadido a la configuración la posibilidad de emitir un Beep al leer un documento desde la cámara
++ Corrección de errores
+
+Versión 0.4.0.0 (02/10/2020)
+-----------------------
++ Cambio a la BD de ce-juegos.es
++ Unificadas versiones Seronuba y Standard
++ La versión Seronuba tiene el logo G,E,HD
++ Añadido reiniciar app con clicks en la fecha de actualización
++ Los errores de conexión a Internet o dispositivo no activado aparecen en la fecha de la última actualización
++ Al cambiar el usuario la app se reinicia automáticamente
++ Cambiados los textos "Escanear" por "Leer"
++ Añadido botón de comprobación manual en la actividad scanned
++ Corrección de errores
+
+Versión 0.3.0.3 (05/08/2020)
+-----------------------
++ Corregido el problema de no poder actualizar la app automaticamente en dispositivos con Android 10
++ Corrección de errores
+
+Versión 0.3.0.2 (04/08/2020)
+------------------------
++ Versión de la App y Última actualización en la pantalla prinicipal
++ Corrección de errores
+
+
+Versión 0.3.0.1 (04/08/2020)
+--------------------------
++ Key definitiva de MRZ Scanner
++ Preparada para imprimir los vales remotamente
++ Corrección de errores
+
+
+Versión 0.3.0.0 (20/07/2020)
+-------------------------
++ En la Configuración ya se puede ocultar la información sensible al scannear
++ La aplicación ya se puede actualizar automaticamente, la pantalla de la actualización ya soporta url con enlaces
++ Corrección de errores
+
+
+Versión 0.2.2 (16/07/2020)
+--------------------------
++ Ya se puede comprobar manualmente un documento
++ En la configuración se puede iniciar el scanner automaticamente al iniciar la app
++ En la configuración se puede ver la fecha de la última actualizacion del sistema
++ Se puede usar el modo debug
++ La aplicación se activa y desactiva remotamente
++ Corrección de errores
+
+
+Versión 0.1 (03/07/2020)
+------------------
++ Permite Scanear un documento
+
+
+
+ */
+
 apply plugin: 'com.android.application'
 
 repositories {
@@ -14,7 +118,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 5
-        versionName "0.4.3.0" //Versión con Solicitud de Efectivo
+        versionName "0.4.3.1" //Versión con Encuestas a los Jugadores y Promociones controladas por el Servidor
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
