@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/payments_txt"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="10dp">
 
                 <TextView
                     android:id="@+id/ultimaActualizacion_txt"
@@ -253,12 +253,12 @@
                     android:visibility="gone" />
 
                 <LinearLayout
-                    android:padding="20dp"
+                    android:padding="0dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_below="@id/linear_1"
-                    android:layout_marginTop="5dp">
+                    android:layout_marginTop="40dp">
 
                     <Button
                         android:id="@+id/back_btn"
@@ -266,23 +266,30 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/activity_description_txt"
-                        android:layout_marginRight="20dp"
+                        android:layout_marginRight="10dp"
                         android:background="@drawable/buttons"
                         android:backgroundTint="@color/colorPrimaryDark"
                         android:padding="5dp"
-                        android:text="Volver" />
+                        android:text="Volver"
+                        android:textSize="18sp"
+                        android:drawableTop="@drawable/ic_twotone_arrow_back_24"
+                        />
+
                     <Button
                         android:id="@+id/guardar_btn"
-                        android:layout_weight="1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/activity_description_txt"
-                        android:layout_marginLeft="20dp"
-
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
                         android:background="@drawable/buttons"
                         android:backgroundTint="@color/colorPrimaryDark"
                         android:padding="5dp"
-                        android:text="Guardar" />
+                        android:text="Guardar"
+                        android:textSize="18sp"
+                        android:enabled="false"
+                        android:drawableTop="@drawable/ic_twotone_save_24"
+                        />
                 </LinearLayout>
             </LinearLayout>
 

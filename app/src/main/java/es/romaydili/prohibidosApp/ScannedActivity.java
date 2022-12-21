@@ -397,6 +397,8 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 */
+
+/*
     private void comprobar_dni(final String documento){
         //URL of the request we are sending
 
@@ -467,8 +469,8 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             icono=R.drawable.ic_baseline_check_circle_24;
                             if( MainActivity.getImprimirVales() == true && imprimirPromocion == true ) {
                                 MainActivity.imprimir(documento, ScannedActivity.this);
-                                titulo="Accceso Permitido + VALE";
-                                mensaje=mensaje+"\n\n\n\nIMPRIMIENDO VALE";
+                                titulo="Accceso Permitido + PROMO";
+                                mensaje=mensaje+"\n\n\n\nIMPRIMIENDO PROMO";
                             }
                         }else{
                             if(resultado_correcto == true && permitido ==false) {
@@ -532,6 +534,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             });
                         }
 */
+/*
                         android.app.AlertDialog dialog = alertOpciones.show();
                         //alertOpciones.show();
                         TextView messageText = (TextView)dialog.findViewById(android.R.id.message);
@@ -598,7 +601,7 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
         };
         Volley.newRequestQueue(this).add(postRequest);
     }
-
+*/
     private void startScanner() {
         startActivityForResult(new Intent(getApplicationContext(),ScannerActivity.class),REQUEST_CODE);
     }
@@ -677,8 +680,13 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                             icono=R.drawable.ic_baseline_check_circle_24;
                             if( MainActivity.getImprimirVales() == true && imprimirPromocion == true ) {
                                 MainActivity.imprimir(editDocNum.getText().toString(), ScannedActivity.this);
-                                titulo="Accceso Permitido + VALE";
-                                mensaje=mensaje+"\n\n\n\n IMPRIMIENDO VALE";
+                                titulo="Accceso Permitido + PROMO";
+                                mensaje=mensaje+"\n\n\n\n IMPRIMIENDO PROMO";
+                            }
+
+                            //Tono de Aviso
+                            if (prohibidoDispositivo == true){
+                                MainActivity.tonoAviso(context);
                             }
                         }else{
                             if (resultado_correcto == true && permitido == false) {
@@ -690,6 +698,8 @@ public class ScannedActivity extends AppCompatActivity implements View.OnClickLi
                                 titulo="Resultado";
                                 icono=R.drawable.ic_baseline_info_24;
                             }
+
+                            MainActivity.tonoAviso(context); //Tono de Aviso
                         }
 
 

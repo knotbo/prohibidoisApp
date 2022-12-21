@@ -91,18 +91,24 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         label_sdk=findViewById(R.id.label_sdk);
         text_sdk=findViewById(R.id.text_sdk);
 
-
         configuracion.setOnClickListener(this);
+
+        scannerInicial.setOnClickListener(this);
+        ocultarInfo.setOnClickListener(this);
+        beep.setOnClickListener(this);
+        imprimirVales.setOnClickListener(this);
+        debugMode.setOnClickListener(this);
+
         usuario_txt.setOnClickListener(this);
         backBtn.setOnClickListener(this);
         guardarBtn.setOnClickListener(this);
-        ocultarInfo.setOnClickListener(this);
-        beep.setOnClickListener(this);
+
         usuario_edit.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 editando_usuario=true;
+                guardarBtn.setEnabled(true);
             }
 
             @Override
@@ -190,17 +196,18 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
     }
     @Override
     public void onClick(View view) {
-        if (view == setDate) {
-            launchCalendar();
-            frameLayout.setVisibility(View.VISIBLE);
-            scrollView.setVisibility(View.GONE);
-        }
-        if (view == fab) {
-            frameLayout.setVisibility(View.GONE);
-            scrollView.setVisibility(View.VISIBLE);
-            setDate.setText("From :" + firstDate + "\r\n" +
-                    " To " + lastDate);
-        }
+//        if (view == setDate) {
+//            launchCalendar();
+//            frameLayout.setVisibility(View.VISIBLE);
+//            scrollView.setVisibility(View.GONE);
+//        }
+//        if (view == fab) {
+//            frameLayout.setVisibility(View.GONE);
+//            scrollView.setVisibility(View.VISIBLE);
+//            setDate.setText("From :" + firstDate + "\r\n" +
+//                    " To " + lastDate);
+//        }
+
         if (view == configuracion){
             clicks++;
             if(clicks >= 10) {
@@ -222,12 +229,21 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         }
 
         if (view == backBtn) {
+            if (guardarBtn.getVisibility() == View.VISIBLE) {
+                final Toast toast = Toast.makeText(getApplicationContext(), "No se guardaron los cambios", Toast.LENGTH_SHORT);
+                toast.show();
+            }
             finish();
         }
 
         if (view == guardarBtn){
             guardarPrefencias();
         }
+
+        if (view == scannerInicial |view == ocultarInfo || view == beep || view == imprimirVales || view == debugMode){
+            guardarBtn.setEnabled(true);
+        }
+
     }
 
 

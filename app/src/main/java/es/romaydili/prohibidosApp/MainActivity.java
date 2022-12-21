@@ -24,7 +24,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.Image;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -33,6 +35,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 //import android.telephony.TelephonyManager;
@@ -571,6 +574,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    public static void tonoAviso(Context contexto){
+        //vibrar
+        Vibrator v = (Vibrator) contexto.getSystemService(VIBRATOR_SERVICE);
+        //long [] patron = {0, 500, 300, 1000, 500, 300, 1000, 500, 300, 1000, 500, 300, 1000, 500, 300, 1000, 500, 300, 1000};
+        //long [] patron = {0, 1000, 100, 500, 100, 1000, 100, 500, 100, 1000, 100, 500, 100, 1000, 100, 500, 100, 1000, 100, 500, 100};
+        //long [] patron = {0, 2000, 100, 2000, 100, 2000, 100, 1500, 100, 1500, 100, 1000, 100, 1000, 100, 500, 100, 500, 100};
+        long [] patron = {0, 500, 100, 500, 100, 500, 100, 500, 100, 500, 100, 500, 100, 2000, 100, 2000, 100, 1000, 100, 1000, 100, 500, 100, 500, 100};
+        v.vibrate(patron,-1);
+        //v.vibrate(500);
+
+        //tono de aviso
+        ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
+        //toneGen1.startTone(ToneGenerator.TONE_PROP_ACK, 150); //Bip Leido
+        //toneGen1.startTone(ToneGenerator.TONE_CDMA_ABBR_INTERCEPT, 200); //Sonido error 1
+        //toneGen1.startTone(ToneGenerator.TONE_CDMA_ANSWER, 200); //Sonido error 2
+        toneGen1.startTone(ToneGenerator.TONE_CDMA_CONFIRM, 600); //Sonido error 3
+
+        synchronized (toneGen1){
+            try {
+                toneGen1.wait(1000);
+            } catch (Exception ex) {}
+            //toneGen1.startTone(ToneGenerator.TONE_PROP_ACK, 150); //Bip Leido de nuevo
+            //toneGen1.startTone(ToneGenerator.TONE_CDMA_ABBR_INTERCEPT, 200); //Sonido error 1
+            //toneGen1.startTone(ToneGenerator.TONE_CDMA_ANSWER, 200); //Sonido error 2
+            toneGen1.startTone(ToneGenerator.TONE_CDMA_CONFIRM, 600); //Sonido error 3
+        }
+    }
+
+
     private static void comprobar_dni(final String documento, final Context contexto) {
         //URL of the request we are sending
 
@@ -634,14 +666,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         String titulo;
                         int icono;
+
                         if (resultado_correcto == true && permitido == true) {
                             estilo = R.style.MyDialogThemePermitido;
                             titulo = "Accceso Permitido";
                             icono = R.drawable.ic_baseline_check_circle_24;
                             if ( imprimir_vales == true && imprimirPromocion == true ) {
                                 imprimir(documento, contexto);
-                                titulo = "Accceso Permitido + VALE";
-                                mensaje = mensaje + "\n\n\n\nIMPRIMIENDO VALE";
+                                titulo = "Accceso Permitido + PROMO";
+                                mensaje = mensaje + "\n\n\n\nIMPRIMIENDO PROMO";
+                            }
+                            if (prohibidoDispositivo == true){
+                                tonoAviso(contexto);
                             }
                         } else {
                             if (resultado_correcto == true && permitido == false) {
@@ -653,8 +689,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 titulo = "Resultado";
                                 icono = R.drawable.ic_baseline_info_24;
                             }
+                            tonoAviso(contexto);
                         }
-
 
                         final AlertDialog.Builder alertOpciones = new AlertDialog.Builder(contexto, estilo);
 

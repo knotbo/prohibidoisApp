@@ -1,5 +1,13 @@
 /*
 
+Versión 0.4.3.2 (20/12/2022)
+------------------------
++ Si el DNI está prohibido vibra y suena el móvil
++ Añadido iconos a los botones
++ Normalizado el tamaño del texto de los botones
++ Reordenados los bancos de solicitud de efectivo por orden de usos
++ Corrección de errores
+
 Versión 0.4.3.1 (14/09/2022)
 ------------------------
 + La función solicitar_dni() y comprobar_dni() han sido unificadas en MainActivity
@@ -118,7 +126,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 5
-        versionName "0.4.3.1" //Versión con Encuestas a los Jugadores y Promociones controladas por el Servidor
+        versionName "0.4.3.2" //Versión con Encuestas a los Jugadores y Promociones controladas por el Servidor
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
