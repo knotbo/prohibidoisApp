@@ -6,9 +6,12 @@ import androidx.security.crypto.MasterKey;
 //import androidx.security.crypto.MasterKeys;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 //import android.security.keystore.KeyGenParameterSpec;
@@ -28,6 +31,7 @@ import android.widget.Toast;
 
 //import com.romaydili.prohibidosApp.MainActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.scansolutions.mrzscannerlib.MRZScanner;
 import com.squareup.timessquare.CalendarPickerView;
 import java.util.ArrayList;
@@ -212,7 +216,10 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
             clicks++;
             if(clicks >= 10) {
                 androidID.setText(MainActivity.getIdentificadorAndroid());
-                debugMode.setVisibility(View.VISIBLE);
+                androidID.setVisibility(View.VISIBLE);
+                if (MainActivity.getActivado()) {
+                    debugMode.setVisibility(View.VISIBLE);
+                }
                 usuario_edit.setVisibility(View.VISIBLE);
                 usuario_txt.setVisibility(View.VISIBLE);
                 label_sdk.setVisibility(View.VISIBLE);
@@ -229,11 +236,21 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         }
 
         if (view == backBtn) {
-            if (guardarBtn.getVisibility() == View.VISIBLE) {
-                final Toast toast = Toast.makeText(getApplicationContext(), "No se guardaron los cambios", Toast.LENGTH_SHORT);
-                toast.show();
+            if (guardarBtn.isEnabled() == true) {
+                String msg="No se guardaron los cambios";
+
+                //Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+
+                Intent data = new Intent();
+                String text = msg;
+                //---set the data to pass back---
+                data.setData(Uri.parse(text));
+                setResult(Activity.RESULT_OK, data);
+            }else{
+                setResult(Activity.RESULT_CANCELED);
             }
             finish();
+
         }
 
         if (view == guardarBtn){
@@ -269,6 +286,7 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         int age = myPreferences.getInt("AGE", 0);
         boolean isSingle = myPreferences.getBoolean("SINGLE?", false);
 */
+        Intent data = new Intent();
         try {
             String androidID = MainActivity.getIdentificadorAndroid();
             String usuario;
@@ -297,17 +315,24 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
             editor.putString("usuario", usuario);
             editor.apply();
 
-            finish();
+
+
+
             //Si se está editando el usuario, reiniciamos la App
             if(editando_usuario == true) {
-                final Toast toast = Toast.makeText(getApplicationContext(), "Configuración Guardada\n\nReiniciando la App", Toast.LENGTH_SHORT);
-                toast.show();
-                startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent
-                        .FLAG_ACTIVITY_CLEAR_TOP));
+                String msg = "Configuración Guardada\n\nReiniciando la App";
+                data.setData(Uri.parse(msg));
+
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+
             }else{
-                final Toast toast = Toast.makeText(getApplicationContext(), "Configuración Guardada", Toast.LENGTH_SHORT);
-                toast.show();
+                String msg = "Configuración Guardada";
+                data.setData(Uri.parse(msg));
+
+                //Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+
             }
+
 
 
 
@@ -315,12 +340,18 @@ public class ConfiguracionActivity extends AppCompatActivity implements View.OnC
         }catch (Exception e){
             //
             e.printStackTrace();
-            final Toast toast = Toast.makeText(getApplicationContext(), "Error al Guardar la Configuración", Toast.LENGTH_SHORT);
-            toast.show();
+
+            String msg = "Error al Guardar la Configuración: " + e.toString();
+            data.setData(Uri.parse(msg));
+
+            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+        }finally{
+            setResult(Activity.RESULT_OK, data);
+            //---close the activity---
+            finish();
         }
 
 
+
     }
-
-
 }

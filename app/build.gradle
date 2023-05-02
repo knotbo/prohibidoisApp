@@ -1,4 +1,19 @@
 /*
+Versión 0.5.0.0 (09/02/2023)
+------------------------
++ Añadido impresión de Anticipos
++ Actualización Gradle
++ Cambiados muchos toasts por snackbars
++ Actualización de la api de seronuba, api.seronuba.es
++ Corrección de errores
+
+Versión 0.4.3.3 (28/12/2022)
+------------------------
++ Actualización Gradle
++ Cambiados muchos toasts por snackbars
++ Corrección de errores
+
+
 
 Versión 0.4.3.2 (20/12/2022)
 ------------------------
@@ -119,14 +134,13 @@ repositories {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.0"
+    compileSdk 31
     defaultConfig {
         applicationId "es.romaydili.prohibidosApp"
         minSdkVersion 23
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 5
-        versionName "0.4.3.2" //Versión con Encuestas a los Jugadores y Promociones controladas por el Servidor
+        versionName "0.5.0.0" //Versión con Encuestas a los Jugadores y Promociones controladas por el Servidor
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -147,11 +161,10 @@ android {
                     'proguard-rules.pro'
         }
     }
-    lintOptions {
-        checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
+    namespace 'es.romaydili.prohibidosApp'
+    lint {
         abortOnError false
+        checkReleaseBuilds false
     }
 }
 

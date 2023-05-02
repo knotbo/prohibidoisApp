@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context=".anticipoActivity"
+    android:id="@+id/anticipoLayout"
+    >
+
+
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+
+        <RelativeLayout
+            android:id="@+id/form_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+
+            <TextView
+                android:id="@+id/activity_description_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:lines="1"
+                android:paddingLeft="0dp"
+                android:paddingTop="20dp"
+                android:paddingRight="0dp"
+                android:text="SOLICITUD DE ANTICIPO"
+                android:textAllCaps="true"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/linear_1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/activity_description_txt"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/txt_dniSolicitante"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DNI SOLICITANTE"
+                    android:textAllCaps="true" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <EditText
+                        android:id="@+id/edit_dniSolicitante"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginBottom="20dp"
+                        android:inputType="textCapCharacters"
+                        android:hint="Quién solicita el anticipo"
+                        android:textAllCaps="true"
+                        />
+                    <ImageButton
+                        android:id="@+id/search_dniSolicitante"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/baseline_search_24"
+                        android:background="@color/colorPrimaryDark"
+                        android:layout_centerVertical="true"
+                        android:visibility="gone"
+                        />
+                </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearDatosSolicitante"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/txt_apellidosSolicitante"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Apellidos Solicitante"
+                    android:textAllCaps="true"
+                    android:visibility="visible"
+                    />
+
+                <EditText
+                    android:id="@+id/edit_apellidosSolicitante"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="20dp"
+                    android:textAllCaps="true"
+                    android:inputType="none"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:longClickable="false"
+                    android:visibility="visible"
+                    />
+
+                <TextView
+                    android:id="@+id/txt_nombreSolicitante"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre Solicitante"
+                    android:textAllCaps="true"
+                    android:visibility="visible"
+                    />
+
+                <EditText
+                    android:id="@+id/edit_nombreSolicitante"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="20dp"
+                    android:textAllCaps="true"
+                    android:inputType="none"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:longClickable="false"
+                    android:visibility="visible"
+                    />
+            </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_dniEncargado"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/txt_dniEncargado"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DNI ENCARGADO"
+                        android:textAllCaps="true"
+                    />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <EditText
+                            android:id="@+id/edit_dniEncargado"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginBottom="20dp"
+                            android:inputType="textCapCharacters"
+                            android:hint="Encargado del Local"
+                            android:textAllCaps="true"
+                            />
+                        <ImageButton
+                            android:id="@+id/search_dniEncargado"
+                            android:layout_width="60dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/baseline_search_24"
+                            android:background="@color/colorPrimaryDark"
+                            android:layout_centerVertical="true"
+                            android:visibility="gone"
+                            />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearDatosEncargado"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/txt_apellidosEncargado"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Apellidos Encargado"
+                        android:textAllCaps="true"
+                        android:visibility="visible"
+                        />
+
+                    <EditText
+                        android:id="@+id/edit_apellidosEncargado"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginBottom="20dp"
+                        android:textAllCaps="true"
+                        android:inputType="none"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:clickable="false"
+                        android:longClickable="false"
+                        android:visibility="visible"
+                        />
+
+                    <TextView
+                        android:id="@+id/txt_nombreEncargado"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nombre Encargado"
+                        android:textAllCaps="true"
+                        android:visibility="visible"
+                        />
+
+                    <EditText
+                        android:id="@+id/edit_nombreEncargado"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginBottom="20dp"
+                        android:textAllCaps="true"
+                        android:inputType="none"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:clickable="false"
+                        android:longClickable="false"
+                        android:visibility="visible"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearImporte"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                <TextView
+                    android:id="@+id/txt_importe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Importe Anticipo (100€ - 300€)"
+                    android:textAllCaps="true"
+                    />
+
+                <EditText
+                    android:id="@+id/edit_importe"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="20dp"
+                    android:inputType="number"
+                    android:visibility="gone"
+                />
+
+                <Spinner
+                    android:id="@+id/spinnerImporte"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:padding="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@id/linear_1"
+                android:layout_marginTop="25dp">
+
+                <Button
+                    android:id="@+id/back_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/activity_description_txt"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:backgroundTint="@color/colorPrimaryDark"
+                    android:padding="5dp"
+                    android:text="Volver"
+                    android:textSize="18sp"
+                    android:drawableTop="@drawable/ic_twotone_arrow_back_24"
+                    />
+
+                <Button
+                    android:id="@+id/imprimir_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/activity_description_txt"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginBottom="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/buttons"
+                    android:backgroundTint="@color/colorPrimaryDark"
+                    android:padding="5dp"
+                    android:text="Imprimir"
+                    android:textSize="18sp"
+                    android:enabled="false"
+                    android:drawableTop="@drawable/ic_twotone_local_printshop_24"
+                    />
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+
+    </ScrollView>
+    <!--  <com.google.android.material.floatingactionbutton.FloatingActionButton
+                 android:id="@+id/floatingActionButton3"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_alignParentBottom="true"
+                 android:layout_alignParentRight="true"
+                 android:layout_marginBottom="15dp"
+                 android:layout_marginRight="15dp"
+                 android:clickable="true"
+                 app:srcCompat="@drawable/but" />
+
+             <fragment
+                 android:id="@+id/scannerFragment"
+                 android:name="com.scansolutions.mrzscannerlib.MRZScanner"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent" /> !-->
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

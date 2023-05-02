@@ -52,6 +52,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 import com.scansolutions.mrzscannerlib.MRZScanner;
 
 import org.json.JSONArray;
@@ -130,8 +131,7 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
                 if (item == "Otro...") {
                     txtOtroBanco.setVisibility(View.VISIBLE);
                     editOtroBanco.setVisibility(View.VISIBLE);
-                    //Toast.makeText(ScannedSolicitudEfectivoActivity.this, item.toString(),
-                      //      Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(ScannedSolicitudEfectivoActivity.this, item.toString(), Toast.LENGTH_SHORT).show();
 
                 }else{
                     txtOtroBanco.setVisibility(View.GONE);
@@ -296,8 +296,7 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
                 getUltimasSolicitudes();
             }
         } catch (Exception ex) {
-            Toast.makeText(this, "Fallo en el resultado de la actividad\r\n" + MRZScanner.sdkVersion(),
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Fallo en el resultado de la actividad\r\n" + MRZScanner.sdkVersion(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -351,10 +350,7 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
 
 
 
-                        boolean permitido=false,resultado_correcto=false;
-                        boolean certificadoCovid = false; //Certificado Covid
-                        String mensaje="";
-                        int numAccesosHoy=-1;
+                        boolean resultado_correcto=false;
 
                         // Creo un array con los datos JSON que he obtenido
                         ArrayList listaArray = new ArrayList<>();
@@ -390,11 +386,17 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
 
 
                         if(MainActivity.getDebugMode() == true) {
-                            final Toast toast = Toast.makeText(context, response, Toast.LENGTH_LONG);
-                            toast.show();
+                            Toast.makeText(context, response, Toast.LENGTH_LONG).show();
+
+                            //Nuevo SnackBar 28/12/2022
+                            Snackbar mySnackbar = Snackbar.make(findViewById(R.id.solicitudEfectivoLayout), response, Snackbar.LENGTH_INDEFINITE);
+                            View snackbarView = mySnackbar.getView();
+                            TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                            textView.setMaxLines(40);  // show multiple line
+                            mySnackbar.show();
+                            //Fin Nuevo SnackBar 28/12/2022
                         }else{
-                            //final Toast toast = Toast.makeText(context, mensaje, Toast.LENGTH_LONG);
-                            //toast.show();
+                            //Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show();
                         }
 
                         if(editDocNum.getText().length() == 0) {
@@ -415,11 +417,14 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
                         error.printStackTrace();
                         Context context = getApplicationContext();
                         CharSequence textToast = "";
-                        int duration = Toast.LENGTH_SHORT;
 
                         if (error instanceof TimeoutError || error instanceof NoConnectionError) {
                             //This indicates that the reuest has either time out or there is no connection
-                            textToast = "Servidor no Responde o No Hay Conexión a Internet";
+                            if (error.toString().contains(("javax.net.ssl.SSLHandshakeException"))){
+                                textToast = "La conexión con el servidor no es segura (SSL)";
+                            }else {
+                                textToast = "Servidor no Responde o No Hay Conexión a Internet";
+                            }
                         } else if (error instanceof AuthFailureError) {
                             // Error indicating that there was an Authentication Failure while performing the request
                             textToast="Fallo de autenticación del Servidor";
@@ -432,10 +437,20 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
                         } else if (error instanceof ParseError) {
                             // Indicates that the server response could not be parsed
                             textToast="No se puede interpretar la Respuesta del Servidor";
+                        }else{
+                            textToast="Error desconocido";
                         }
 
-                        final Toast toast = Toast.makeText(context, textToast, duration);
-                        toast.show();
+                        Toast.makeText(context, textToast, Toast.LENGTH_LONG).show();
+                        if (MainActivity.getDebugMode()){
+                            //Nuevo SnackBar 28/12/2022
+                            Snackbar mySnackbar = Snackbar.make(findViewById(R.id.solicitudEfectivoLayout), error.toString(), Snackbar.LENGTH_INDEFINITE);
+                            View snackbarView = mySnackbar.getView();
+                            TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                            textView.setMaxLines(40);  // show multiple line
+                            mySnackbar.show();
+                            //Fin Nuevo SnackBar 28/12/2022
+                        }
                     }
                 }
         ) {
@@ -464,7 +479,7 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
         }
 
         imprimirSolicitudEfectivo(getApplicationContext(), editDocNum.getText().toString(),  editNombre.getText().toString(),  editApellidos.getText().toString(),  banco, editImporte.getText().toString() );
-
+        imprimirBtn.setEnabled(false);
     }
 
     public void imprimirSolicitudEfectivo(final Context context, final String dni, final String nombre, final String apellidos, final String banco, final String importe){
@@ -487,6 +502,15 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
 
                     final String respuesta = reader.readLine();
 
+                    //Nuevo SnackBar 28/12/2022
+                    Snackbar mySnackbar = Snackbar.make(findViewById(R.id.solicitudEfectivoLayout), respuesta, 5000);
+                    View snackbarView = mySnackbar.getView();
+                    TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                    textView.setTextSize(18);
+                    textView.setMaxLines(40);  // show multiple line
+                    mySnackbar.show();
+                    //Fin Nuevo SnackBar 28/12/2022
+
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(context, respuesta, Toast.LENGTH_LONG).show();
@@ -495,6 +519,7 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
 
                     //System.out.println("Acabo el Thread " + Thread.currentThread().getId());
                     //socket.close();
+
                 } catch (final UnknownHostException ex) {
 
                     System.out.println("Servidor no Encontrado: " + ex.getMessage());
@@ -516,91 +541,7 @@ public class ScannedSolicitudEfectivoActivity extends AppCompatActivity implemen
             }
         });
         thread.start();
-
-
-        /*
-        final Handler handler = new Handler();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    //Replace below IP with the IP of that device in which server socket open.
-                    //If you change port then change the port number in the server side code also.
-                    Socket s = new Socket("192.168.1.2", 9090);
-
-                    OutputStream out = s.getOutputStream();
-
-                    PrintWriter output = new PrintWriter(out);
-
-                    output.println(msg);
-                    output.flush();
-                    BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                    final String st = input.readLine();
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            //String s = mTextViewReplyFromServer.getText().toString();
-                            if (st.trim().length() != 0) {
-                                //mTextViewReplyFromServer.setText(s + "\nFrom Server : " + st);
-                                Context context = getApplicationContext();
-                                CharSequence text = "Compruebe su Conexión a Internet:\r\n\r\n";
-                                int duration = Toast.LENGTH_SHORT;
-
-                                final Toast toast = Toast.makeText(context,"\nFrom Server : " + st, duration);
-                                toast.show();
-
-                                //final Toast toast = Toast.makeText(getApplicationContext(), s + "\nFrom Server : " + st, Toast.LENGTH_LONG);
-                                //toast.show();
-                            }
-                        }
-                    });
-
-                    output.close();
-                    out.close();
-                    //s.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        thread.start();
-
-         */
     }
 
 
 }
-
-
-//class MyPrintDocumentAdapter extends PrintDocumentAdapter
-//{
-//    Context context;
-//
-//    public MyPrintDocumentAdapter(Context context)
-//    {
-//        this.context = context;
-//    }
-//
-//    @Override
-//    public void onLayout(PrintAttributes oldAttributes,
-//                         PrintAttributes newAttributes,
-//                         CancellationSignal cancellationSignal,
-//                         LayoutResultCallback callback,
-//                         Bundle metadata) {
-//    }
-//
-//
-//    @Override
-//    public void onWrite(final PageRange[] pageRanges,
-//                        final ParcelFileDescriptor destination,
-//                        final CancellationSignal
-//                                cancellationSignal,
-//                        final WriteResultCallback callback) {
-//    }
-//
-//}
-

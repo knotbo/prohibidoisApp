@@ -1,32 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".ConfiguracionActivity">
-<FrameLayout
-    android:id="@+id/framelatout_1"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:visibility="gone">
+    tools:context=".ConfiguracionActivity"
+    android:id="@+id/configLayout"
+    >
 
-    <com.squareup.timessquare.CalendarPickerView
-    android:id="@+id/calendar_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    <FrameLayout
+        android:id="@+id/framelatout_1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="gone">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:layout_marginLeft="20dp"
-        android:layout_gravity="bottom|right"
-        app:srcCompat="@android:drawable/ic_input_add"
-        android:layout_margin="15dp" />
-</FrameLayout>
+        <com.squareup.timessquare.CalendarPickerView
+            android:id="@+id/calendar_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="15dp"
+            android:layout_marginLeft="20dp"
+            android:clickable="true"
+            app:srcCompat="@android:drawable/ic_input_add" />
+    </FrameLayout>
 
 
     <ScrollView
@@ -41,14 +44,23 @@
 
             <TextView
                 android:id="@+id/configuracion_txt"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:paddingTop="30dp"
+                android:paddingTop="20dp"
+                android:gravity="center"
                 android:text="Configuración"
+                android:drawableLeft="@drawable/ic_twotone_settings_24"
+                android:drawableRight="@drawable/ic_twotone_settings_24"
                 android:textAllCaps="true"
-                android:textSize="20sp"
+                android:textSize="25sp"
                 android:textStyle="bold" />
+
+            <View
+                android:layout_below="@+id/configuracion_txt"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="#000" />
 
             <TextView
                 android:id="@+id/androidID_txt"
@@ -56,30 +68,21 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/configuracion_txt"
                 android:layout_centerHorizontal="true"
-                android:padding="10dp"
-                android:text=""
-                android:textAllCaps="true"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/payments_txt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/androidID_txt"
-                android:layout_centerHorizontal="true"
-                android:text=""
+                android:text="0000000000000000"
+                android:paddingTop="20dp"
                 android:textAllCaps="true"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:visibility="gone" />
+                android:visibility="gone"
+                />
 
             <LinearLayout
                 android:id="@+id/linear_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/payments_txt"
+                android:layout_below="@+id/androidID_txt"
                 android:orientation="vertical"
+                android:layout_marginTop="10dp"
                 android:padding="10dp">
 
                 <TextView
@@ -88,8 +91,7 @@
                     android:layout_height="wrap_content"
                     android:text="Última Actualización"
                     android:textAllCaps="true"
-                    android:textSize="18sp"
-                    />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/ultimaActualizacion"
@@ -97,9 +99,8 @@
                     android:layout_height="40dp"
                     android:layout_marginBottom="20dp"
                     android:background="@color/colorPrimaryDark"
-                    android:textSize="18sp"
                     android:gravity="center"
-                    />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -114,9 +115,8 @@
                     android:layout_height="40dp"
                     android:layout_marginBottom="20dp"
                     android:background="@color/colorPrimaryDark"
-                    android:textSize="18sp"
                     android:gravity="center"
-                    />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -140,8 +140,7 @@
                     android:layout_height="wrap_content"
                     android:text="Provincia"
                     android:textAllCaps="true"
-                    android:textSize="18sp"
-                    />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/provincia"
@@ -149,9 +148,8 @@
                     android:layout_height="40dp"
                     android:layout_marginBottom="20dp"
                     android:background="@color/colorPrimaryDark"
-                    android:textSize="18sp"
                     android:gravity="center"
-                    />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/label_sdk"
@@ -160,8 +158,7 @@
                     android:text="SDK"
                     android:textAllCaps="true"
                     android:textSize="18sp"
-                    android:visibility="gone"
-                    />
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/text_sdk"
@@ -169,77 +166,72 @@
                     android:layout_height="40dp"
                     android:layout_marginBottom="20dp"
                     android:background="@color/colorPrimaryDark"
-                    android:textSize="18sp"
                     android:gravity="center"
-                    android:visibility="gone"
-                    />
+                    android:textSize="18sp"
+                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/linear_2"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    >
+                    android:layout_height="wrap_content">
 
 
                     <CheckBox
-                    android:id="@+id/scannerInical_ckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Leer Documento al iniciar la App"
-                    android:buttonTint="@color/colorPrimaryDark"
-                    />
+                        android:id="@+id/scannerInical_ckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:buttonTint="@color/colorPrimaryDark"
+                        android:text="Leer Documento al iniciar la App" />
 
 
                 </LinearLayout>
+
                 <CheckBox
                     android:id="@+id/ocultarInfo_ckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Ocultar Información Sensible"
                     android:buttonTint="@color/colorPrimaryDark"
                     android:checked="true"
-                    />
+                    android:text="Ocultar Información Sensible" />
+
                 <CheckBox
                     android:id="@+id/beep_ckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Beep al leer Documento"
                     android:buttonTint="@color/colorPrimaryDark"
                     android:checked="true"
-                    />
+                    android:text="Beep al leer Documento" />
+
                 <CheckBox
                     android:id="@+id/impresion_ckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Imprimir Vales"
                     android:buttonTint="@color/colorPrimaryDark"
-                    />
+                    android:text="Imprimir Vales" />
+
                 <CheckBox
                     android:id="@+id/debugMode_ckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Debug Mode"
                     android:buttonTint="@color/colorPrimaryDark"
-                    android:visibility="gone"
-                    />
-
+                    android:text="Debug Mode"
+                    android:visibility="gone" />
 
 
                 <TextView
                     android:id="@+id/usuario_txt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:text="Usuario"
                     android:textAllCaps="true"
                     android:textSize="18sp"
-                    android:visibility="gone"
-                    android:layout_marginTop="20dp"
-                    />
+                    android:visibility="gone" />
 
                 <EditText
                     android:id="@+id/usuario_edit"
@@ -248,32 +240,31 @@
                     android:layout_marginBottom="20dp"
                     android:background="@color/colorPrimaryDark"
                     android:gravity="center"
-                    android:textSize="18sp"
                     android:singleLine="true"
+                    android:textSize="18sp"
                     android:visibility="gone" />
 
                 <LinearLayout
-                    android:padding="0dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_below="@id/linear_1"
-                    android:layout_marginTop="40dp">
+                    android:layout_marginTop="30dp"
+                    android:orientation="horizontal"
+                    android:padding="0dp">
 
                     <Button
                         android:id="@+id/back_btn"
-                        android:layout_weight="1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/activity_description_txt"
                         android:layout_marginRight="10dp"
+                        android:layout_weight="1"
                         android:background="@drawable/buttons"
                         android:backgroundTint="@color/colorPrimaryDark"
+                        android:drawableTop="@drawable/ic_twotone_arrow_back_24"
                         android:padding="5dp"
                         android:text="Volver"
-                        android:textSize="18sp"
-                        android:drawableTop="@drawable/ic_twotone_arrow_back_24"
-                        />
+                        android:textSize="18sp" />
 
                     <Button
                         android:id="@+id/guardar_btn"
@@ -284,12 +275,11 @@
                         android:layout_weight="1"
                         android:background="@drawable/buttons"
                         android:backgroundTint="@color/colorPrimaryDark"
+                        android:drawableTop="@drawable/ic_twotone_save_24"
+                        android:enabled="false"
                         android:padding="5dp"
                         android:text="Guardar"
-                        android:textSize="18sp"
-                        android:enabled="false"
-                        android:drawableTop="@drawable/ic_twotone_save_24"
-                        />
+                        android:textSize="18sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -297,4 +287,4 @@
     </ScrollView>
 
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

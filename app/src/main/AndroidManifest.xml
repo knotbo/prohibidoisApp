@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="es.romaydili.prohibidosApp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <!--<uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" /> !-->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,25 +19,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
-        <activity android:name=".ConfiguracionActivity"
+        <activity android:name="es.romaydili.prohibidosApp.ConfiguracionActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
-        <activity android:name=".ScannerActivity"
+        <activity android:name="es.romaydili.prohibidosApp.ScannerActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
-        <activity android:name=".ScannedSolicitudEfectivoActivity"
+        <activity android:name="es.romaydili.prohibidosApp.anticipoActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
-        <activity android:name=".ScannedActivity"
+        <activity android:name="es.romaydili.prohibidosApp.ScannedSolicitudEfectivoActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
-        <activity android:name=".MainActivity"
+        <activity android:name="es.romaydili.prohibidosApp.ScannedActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            />
+        <activity android:name="es.romaydili.prohibidosApp.MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -44,7 +51,7 @@
         </activity>
 
         <provider
-            android:name=".GenericFileProvider"
+            android:name="es.romaydili.prohibidosApp.GenericFileProvider"
             android:authorities="es.romaydili.prohibidosApp.provider"
             android:exported="false"
             android:grantUriPermissions="true">

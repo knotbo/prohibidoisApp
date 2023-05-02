@@ -1,6 +1,7 @@
 package es.romaydili.prohibidosApp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 //import androidx.core.app.ActivityCompat;
 //import androidx.core.content.ContextCompat;
@@ -44,6 +45,7 @@ import android.text.Html;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
+import android.text.TextDirectionHeuristic;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
@@ -68,6 +70,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.BuildConfig;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
@@ -78,6 +81,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 
 //import org.json.JSONArray;
 import org.json.JSONException;
@@ -109,10 +113,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String m_Text = "";
     private String ultActualizacion = "";
     private static String version = "";
+    private static String versionAndroid = Build.VERSION.RELEASE;
     private int clicks = 0;
-    private static final String ipServidor = "192.168.1.2"; //"192.168.1.23";
+    private static String ipServidor = "192.168.1.2"; //TPV;
+    private static final int myRequestCode = 0xe110; // Or whatever number you want
+    // ensure it's unique compared to other activity request codes you use
 
-    Button button_solicitudEfectivo,button_scanner, button_comprobar, button_configuracion;
+    Button button_solicitudEfectivo,button_anticipo,button_scanner, button_comprobar, button_configuracion;
     TextView textVersion, textProvincia, textUltimaActualizacion;
     ImageView logoGEHD;
     ProgressBar spinner;
@@ -125,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static String numProhibidosUltActualizacion;
     private static String mensaje = "";
     private static String versionApp = "";
+    private static boolean esSalon = false;
     private static String provincia = "";
     private static boolean scanner_inicial;
     private static boolean ocultarInfo;
@@ -133,9 +141,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static Boolean beep = false;
     private static Boolean activado = false;
     private String url_base = "https://";
+    private String url_servidor = "ce-juegos.es/";
     private static String url_documento;
     private static String url_mrz;
     private static String url_efectivo;
+
+    private static String url_datosDni;
     private static String url_jugador;
     private Boolean actualizacion_disponible = false;
     private Boolean actualizacion_permitir = false;
@@ -205,6 +216,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return url_efectivo;
     }
 
+    public static String getUrlDatosDni() {
+        return url_datosDni;
+    }
+
     public static String getUrlDocumento() {
         return url_documento;
     }
@@ -269,19 +284,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } catch (JSONException e) {
                             e.printStackTrace();
 
-                            final Toast toast = Toast.makeText(contexto, "Error procesando JSON", Toast.LENGTH_LONG);
-                            toast.show();
+                            Toast.makeText(contexto, "Error procesando JSON", Toast.LENGTH_LONG).show();
                         }
 
                         if (MainActivity.getDebugMode() == true) {
-                            final Toast toast = Toast.makeText(contexto, response, Toast.LENGTH_LONG);
-                            toast.show();
-                            //}else{
-                            //final Toast toast = Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_LONG);
-                            //toast.show();
+                            Toast.makeText(contexto, response, Toast.LENGTH_LONG).show();
+
                         }else{
-                            final Toast toast = Toast.makeText(contexto, mensaje, Toast.LENGTH_LONG);
-                            toast.show();
+                            Toast.makeText(contexto, mensaje, Toast.LENGTH_LONG).show();
                         }
                     }
                 },
@@ -291,10 +301,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         error.printStackTrace();
                         Context context = contexto;
                         CharSequence text = "Compruebe su Conexión a Internet:\r\n\r\n" + error.toString();
-                        int duration = Toast.LENGTH_SHORT;
 
-                        final Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
+                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                     }
                 }
         ) {
@@ -321,6 +329,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         button_solicitudEfectivo = findViewById(R.id.btn_solicitud);
+        button_anticipo = findViewById(R.id.btn_anticipo);
         button_scanner = findViewById(R.id.btn_scanner);
         button_comprobar = findViewById(R.id.btn_comprobar);
         button_configuracion = findViewById(R.id.btn_configuracion);
@@ -331,6 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         spinner = findViewById(R.id.spinner);
 
         button_solicitudEfectivo.setOnClickListener(this);
+        button_anticipo.setOnClickListener(this);
         button_scanner.setOnClickListener(this);
         button_comprobar.setOnClickListener(this);
         button_configuracion.setOnClickListener(this);
@@ -341,8 +351,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SharedPreferences myPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         scanner_inicial = myPreferences.getBoolean("scanner_inicial", false);
-        ocultarInfo = myPreferences.getBoolean("ocultar_info", false);
-        beep = myPreferences.getBoolean("beep", false);
+        ocultarInfo = myPreferences.getBoolean("ocultar_info", true);
+        beep = myPreferences.getBoolean("beep", true);
         imprimir_vales = myPreferences.getBoolean("imprimir_vales", false);
 /*
         // Here, thisActivity is the current activity
@@ -404,6 +414,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             androidID_codificado = msharedPreferences.getString("androidID", "unknown");
             usuario = msharedPreferences.getString("usuario", "unknown");
 
+            if (usuario.contains("fernando_")){
+                ipServidor = "192.168.1.23";
+                Toast.makeText(getApplicationContext(), "Servidor de impresión (NANDO-PC): " + ipServidor, Toast.LENGTH_SHORT).show();
+
+                Snackbar mySnackbar = Snackbar.make(findViewById(R.id.mainLayout), "Servidor de impresión (NANDO-PC): " + ipServidor, Snackbar.LENGTH_LONG);
+                //mySnackbar.setAction(R.string.undo_string, new MyUndoListener());
+                View snackbarView = mySnackbar.getView();
+                TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                textView.setTextSize(25);
+                textView.setMaxLines(3);  // show multiple line
+                mySnackbar.show();
+
+            }
+
         } catch (Exception e) {
             //
             e.printStackTrace();
@@ -430,6 +454,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+        if (view == button_anticipo) {
+            spinner.setVisibility(View.INVISIBLE);
+            startActivity(new Intent(getApplicationContext(), anticipoActivity.class));
+        }
+
         if (view == button_solicitudEfectivo) {
             spinner.setVisibility(View.INVISIBLE);
             startActivity(new Intent(getApplicationContext(), ScannedSolicitudEfectivoActivity.class));
@@ -437,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (view == button_comprobar) {
             spinner.setVisibility(View.INVISIBLE);
-            solicitar_dni(this);
+            solicitar_dni(this, findViewById(R.id.mainLayout));
         }
 
         if (view == button_scanner) {
@@ -446,18 +475,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (view == button_configuracion) {
             spinner.setVisibility(View.INVISIBLE);
-            startActivity(new Intent(getApplicationContext(), ConfiguracionActivity.class));
+            startActivityForResult(new Intent(new Intent(getApplicationContext(), ConfiguracionActivity.class)), myRequestCode );
         }
 
         if (view == textUltimaActualizacion) {
             clicks++;
             if (clicks >= 10) {
                 clicks = 0;
-                final Toast toast = Toast.makeText(getApplicationContext(), "Reiniciando la App", Toast.LENGTH_SHORT);
-                toast.show();
+                Toast.makeText(getApplicationContext(), "Reiniciando la App", Toast.LENGTH_SHORT).show();
+
                 startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent
                         .FLAG_ACTIVITY_CLEAR_TOP));
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == myRequestCode) {
+            if (resultCode == Activity.RESULT_OK) {
+//                Toast.makeText(getApplicationContext(), data.getData().toString(), Toast.LENGTH_SHORT).show();
+
+                //Nuevo SnackBar 28/12/2022
+                Snackbar mySnackbar = Snackbar.make(findViewById(R.id.mainLayout), data.getData().toString(), Snackbar.LENGTH_LONG);
+                View snackbarView = mySnackbar.getView();
+                TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                textView.setMaxLines(40);  // show multiple line
+                mySnackbar.show();
+                //Fin Nuevo SnackBar 28/12/2022
+
+                if (data.getData().toString().contains("Reiniciando la App")){
+                    startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent
+                            .FLAG_ACTIVITY_CLEAR_TOP));
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+//                Toast.makeText(getApplicationContext(), "Sin Mensaje", Toast.LENGTH_SHORT).show();
+            }
+
+
         }
     }
 
@@ -473,7 +532,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-    public static void solicitar_dni( final Context contexto) {
+    public static void solicitar_dni( final Context contexto, final View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(contexto);
 
         builder.setIcon(android.R.drawable.ic_menu_search);
@@ -496,21 +555,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                         String reg = "^[a-zA-Z0-9]*$";
                         if (m_Text.matches(reg) && m_Text.length() >= 4 && m_Text.length() <= 12) {
-                            comprobar_dni(m_Text, contexto);
-                            //final Toast toast = Toast.makeText(getApplicationContext(), "Comprobando " + m_Text, Toast.LENGTH_SHORT);
-                            //toast.show();
+                            comprobar_dni(m_Text, contexto, view);
+                            //Toast.makeText(getApplicationContext(), "Comprobando " + m_Text, Toast.LENGTH_SHORT).show();
                         } else {
                             if (m_Text.length() < 4) {
-                                final Toast toast = Toast.makeText(contexto, "Introduzca al menos 4 caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
-                                toast.show();
+                                Toast.makeText(contexto, "Introduzca al menos 4 caracteres (" + m_Text + ")", Toast.LENGTH_SHORT).show();
                             }
                             if (m_Text.length() > 12) {
-                                final Toast toast = Toast.makeText(contexto, "Introduzca Menos de 12 caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
-                                toast.show();
+                                Toast.makeText(contexto, "Introduzca Menos de 12 caracteres (" + m_Text + ")", Toast.LENGTH_SHORT).show();
                             }
                             if (!m_Text.matches(reg)) {
-                                final Toast toast = Toast.makeText(contexto, "Introduzca Sólo dígitos y caracteres (" + m_Text + ")", Toast.LENGTH_SHORT);
-                                toast.show();
+                                Toast.makeText(contexto, "Introduzca Sólo dígitos y caracteres (" + m_Text + ")", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -542,13 +597,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                 if (!s.toString().matches(reg)) {
-                    final Toast toast = Toast.makeText(contexto, "Introduzca Sólo dígitos y caracteres", Toast.LENGTH_SHORT);
-                    toast.show();
+                    Toast.makeText(contexto, "Introduzca Sólo dígitos y caracteres", Toast.LENGTH_SHORT).show();
                 }
 
                 if (s.length() > 12) {
-                    final Toast toast = Toast.makeText(contexto, "Introduzca Menos de 12 caracteres", Toast.LENGTH_SHORT);
-                    toast.show();
+                    Toast.makeText(contexto, "Introduzca Menos de 12 caracteres", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -574,15 +627,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    public static void tonoAviso(Context contexto){
+    public static void tonoAviso(Context contexto, int tipoAviso){
         //vibrar
         Vibrator v = (Vibrator) contexto.getSystemService(VIBRATOR_SERVICE);
         //long [] patron = {0, 500, 300, 1000, 500, 300, 1000, 500, 300, 1000, 500, 300, 1000, 500, 300, 1000, 500, 300, 1000};
         //long [] patron = {0, 1000, 100, 500, 100, 1000, 100, 500, 100, 1000, 100, 500, 100, 1000, 100, 500, 100, 1000, 100, 500, 100};
         //long [] patron = {0, 2000, 100, 2000, 100, 2000, 100, 1500, 100, 1500, 100, 1000, 100, 1000, 100, 500, 100, 500, 100};
-        long [] patron = {0, 500, 100, 500, 100, 500, 100, 500, 100, 500, 100, 500, 100, 2000, 100, 2000, 100, 1000, 100, 1000, 100, 500, 100, 500, 100};
-        v.vibrate(patron,-1);
-        //v.vibrate(500);
+
+        final long[] patronCorto = {0, 500, 100, 500, 100, 500}; //Vibración Corta (por defecto)
+        final long[] patronMedio = {0, 500, 100, 500, 100, 500, 100, 500, 100, 500, 100, 500}; //Vibración Media
+        final long[] patronLargo = {0, 500, 100, 500, 100, 500, 100, 500, 100, 500, 100, 500, 100, 2000, 100, 2000, 100, 1000, 100, 1000, 100, 500, 100, 500, 100}; //Vibración larga
+
+        if (tipoAviso == 1) {
+            v.vibrate(patronMedio,-1);
+        }else if (tipoAviso == 2){ //Vibración Larga
+            v.vibrate(patronLargo,-1);
+        }else{
+            v.vibrate(patronCorto,-1);
+        }
 
         //tono de aviso
         ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
@@ -603,7 +665,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private static void comprobar_dni(final String documento, final Context contexto) {
+    private static void comprobar_dni(final String documento, final Context contexto, final View view) {
         //URL of the request we are sending
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url_documento,
@@ -613,9 +675,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         boolean permitido = false, resultado_correcto = false;
                         //boolean certificadoCovid = false; //Certificado Covid
-                        boolean prohibidoDispositivo = false; //mensaje de prohibido en el dispositivo
+                        boolean enMiLista = false; //Está en la lista personal
                         String mensaje = "";
-                        String mensajeProhibidoDispositivo = "";
+                        String mensajeMiLista = "";
                         Boolean solicitarJugador = false; //Encuesta si el cliente es Jugador
                         //int numAccesosHoy = -1;
                         boolean imprimirPromocion=false;
@@ -624,6 +686,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         ArrayList listaArray = new ArrayList<>();
 
                         // Solicito los datos al archivo JSON
+                        String msgErrorExcepcion="";
                         try {
                             JSONObject jsonObject = new JSONObject(response);
 
@@ -635,10 +698,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 mensaje = jsonObject.getString("mensaje");
                                 //numAccesosHoy = jsonObject.getInt("num_accesos_hoy");
                                 //certificadoCovid = jsonObject.getBoolean("certificadoCovid"); //Certificado Covid
-                                prohibidoDispositivo = jsonObject.getBoolean("prohibidoDispositivo"); //Tiene mensaje de prohibido en el dispositivo
-                                mensajeProhibidoDispositivo = jsonObject.getString("mensajeProhibidoDispositivo");
-                                solicitarJugador=jsonObject.getBoolean("solicitarJugador");
-                                imprimirPromocion=jsonObject.getBoolean("promocion");
+                                enMiLista = jsonObject.getBoolean("enMiLista"); //Está en la lista personal
+                                mensajeMiLista = jsonObject.getString("mensajeMiLista");
+                                if ( MainActivity.getVersion().equals("SerOnuba") ) {
+                                    solicitarJugador = jsonObject.getBoolean("solicitarJugador");
+                                    imprimirPromocion = jsonObject.getBoolean("promocion");
+                                }
                             } else {
                                 if (jsonObject.getString("status").equals("true")) {
                                     resultado_correcto = false;
@@ -648,16 +713,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } catch (JSONException e) {
                             e.printStackTrace();
 
-                            final Toast toast = Toast.makeText(contexto, "Error procesando JSON", Toast.LENGTH_LONG);
-                            toast.show();
+                            Toast.makeText(contexto, "Error procesando JSON", Toast.LENGTH_LONG).show();
+
+                            if(MainActivity.getDebugMode() == true) {
+                                msgErrorExcepcion=e.toString();
+                            }
                         }
 
-                        if (MainActivity.getDebugMode() == true) {
-                            final Toast toast = Toast.makeText(contexto, response, Toast.LENGTH_LONG);
-                            toast.show();
-                            //}else{
-                            //final Toast toast = Toast.makeText(getApplicationContext(), mensaje, Toast.LENGTH_LONG);
-                            //toast.show();
+                        if(MainActivity.getDebugMode() == true) {
+                            //Nuevo SnackBar 28/12/2022
+                            Snackbar mySnackbar;
+                            if (msgErrorExcepcion.equals("")) {
+                                mySnackbar = Snackbar.make(view, "JSON Procesado:\n\n" + response, Snackbar.LENGTH_INDEFINITE);
+                            } else {
+                                mySnackbar = Snackbar.make(view, "Error Procesando JSON:\n\n" + msgErrorExcepcion + "\n\n\n" + response, Snackbar.LENGTH_INDEFINITE);
+                            }
+
+                            View snackbarView = mySnackbar.getView();
+                            TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                            textView.setMaxLines(40);  // show multiple line
+                            mySnackbar.show();
+                            //Fin Nuevo SnackBar 28/12/2022
                         }
 
 
@@ -672,24 +748,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             titulo = "Accceso Permitido";
                             icono = R.drawable.ic_baseline_check_circle_24;
                             if ( imprimir_vales == true && imprimirPromocion == true ) {
-                                imprimir(documento, contexto);
+                                imprimir(documento, contexto, view);
                                 titulo = "Accceso Permitido + PROMO";
-                                mensaje = mensaje + "\n\n\n\nIMPRIMIENDO PROMO";
+                                mensaje = mensaje + "<br><br>IMPRIMIENDO PROMO";
                             }
-                            if (prohibidoDispositivo == true){
-                                tonoAviso(contexto);
+                            if (enMiLista == true){
+                                tonoAviso(contexto, 2); //Aviso Largo
                             }
                         } else {
                             if (resultado_correcto == true && permitido == false) {
                                 estilo = R.style.MyDialogThemeProhibido;
                                 titulo = "Acceso Denegado";
                                 icono = R.drawable.ic_baseline_not_interested_24;
-                            } else {
+
+                                tonoAviso(contexto, 2); //Aviso Largo
+
+                            } else { //El resultado no es correcto
                                 estilo = R.style.MyDialogThemeNeutral;
                                 titulo = "Resultado";
                                 icono = R.drawable.ic_baseline_info_24;
+
+                                tonoAviso(contexto, 0); //Aviso Corto
                             }
-                            tonoAviso(contexto);
+
                         }
 
                         final AlertDialog.Builder alertOpciones = new AlertDialog.Builder(contexto, estilo);
@@ -699,12 +780,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         alertOpciones.setMessage(Html.fromHtml(mensaje));
 
-                        if (prohibidoDispositivo == true) {
+                        if (enMiLista == true) {
                             LinearLayout diagLayout = new LinearLayout(contexto);
                             diagLayout.setOrientation(LinearLayout.VERTICAL);
                             TextView textoMensaje = new TextView(contexto);
                             textoMensaje.setTextColor(Color.BLACK);
-                            textoMensaje.setText(Html.fromHtml(mensajeProhibidoDispositivo));
+                            textoMensaje.setText(Html.fromHtml(mensajeMiLista));
                             textoMensaje.setPadding(30, 30, 10, 30);
                             textoMensaje.setBackgroundColor(ContextCompat.getColor(contexto, R.color.peligro));
                             textoMensaje.setGravity(Gravity.CENTER);
@@ -786,10 +867,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         error.printStackTrace();
                         //Context context = getApplicationContext();
                         CharSequence text = "Compruebe su Conexión a Internet:\r\n\r\n" + error.toString();
-                        int duration = Toast.LENGTH_SHORT;
 
-                        final Toast toast = Toast.makeText(contexto, text, duration);
-                        toast.show();
+                        Toast.makeText(contexto, text, Toast.LENGTH_LONG).show();
                     }
                 }
         ) {
@@ -813,7 +892,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //URL of the request we are sending
         //String url = "https://www.ce-juegos.es/App/v0.4.0/ult_actualizacion.php";
 
-        String url_servidor = "ce-juegos.es/";
+
         String url2 = "App";
         String url_Version = "/v" + version.substring(0,5); //"/v0.4.2";
         String url_script = "/ult_actualizacion";
@@ -828,39 +907,115 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         Context context = getApplicationContext();
                         CharSequence text = response.substring(1);
-                        int duration = Toast.LENGTH_LONG;
 
 
-                        if (MainActivity.getDebugMode() == true) {
-                            final Toast toast_response = Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG);
-                            toast_response.show();
+                        //procesa_JSON(response);
+                        // Creo un array con los datos JSON que he obtenido
+                        ArrayList listaArray = new ArrayList<>();
+
+                        // Solicito los datos al archivo JSON
+                        String msgErrorExcepcion="";
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+
+                            // En los datos que recibo verifico si obtengo el estado o 'status' con el valor 'true'
+                            // El dato 'status' con el valor 'true' se encuentra dentro del archivo JSON
+                            if (jsonObject.getString("status").equals("true")) {
+                                activado = jsonObject.getBoolean("activado");
+                                if ( activado == true){
+                                    versionApp = jsonObject.getString("version");
+
+                                    url_documento = jsonObject.getString("url_documento");
+                                    url_mrz = jsonObject.getString("url_mrz");
+
+                                    fechaUltActualizacion = jsonObject.getString("ultActualizacion");
+                                    provincia = jsonObject.getString("provincia");
+                                    ficheroUltActualizacion = jsonObject.getString("fichero");
+                                    numProhibidosUltActualizacion = jsonObject.getString("numProhibidos");
+                                    mensaje = jsonObject.getString("mensaje");
+
+                                    actualizacion_permitir = jsonObject.getBoolean("actualizacion_permitir");
+                                    actualizacion_disponible = jsonObject.getBoolean("actualizacion_disponible");
+                                    mensaje_actualizacion = jsonObject.getString("actualizacion_mensaje");
+                                    url_actualizacion = jsonObject.getString("actualizacion_url");
+
+                                    if ( versionApp.equals("SerOnuba") ){
+                                        url_efectivo = jsonObject.getString("url_efectivo");
+                                        url_datosDni = jsonObject.getString("url_datosDni");
+                                        url_jugador = jsonObject.getString("url_jugador");
+                                        esSalon = jsonObject.getBoolean("esSalon");
+                                    }
+                                }
+
+                                /*// Accedo a la fila 'postres' del archivo JSON
+                                JSONArray dataArray = jsonObject.getJSONArray("configuracion");
+                                // Recorro los datos que hay en la fila 'postres' del archivo JSON
+                                for (int i = 0; i < dataArray.length(); i++) {
+                                    // Creo la  variable 'objetos' y recupero los valores
+                                    JSONObject objetos = dataArray.getJSONObject(i);
+                                    // Selecciono dato por dato
+                                fechaUltActualizacion=objetos.getString("ultActualizacion");
+                                }*/
+
+                            }else{
+                                Toast.makeText(getApplicationContext(), "Error resultado JSON", Toast.LENGTH_LONG).show();
+                            }
+
+                        } catch (JSONException e) {
+                            versionApp = "";
+                            e.printStackTrace();
+
+                            Toast.makeText(getApplicationContext(), "Error procesando JSON", Toast.LENGTH_LONG).show();
+
+                            msgErrorExcepcion=e.toString();
                         }
 
-                        procesa_JSON(response);
+                        if(MainActivity.getDebugMode() == true) {
+                            //Nuevo SnackBar 28/12/2022
+                            Snackbar mySnackbar;
+                            if (msgErrorExcepcion.equals("")) {
+                                mySnackbar = Snackbar.make(findViewById(R.id.mainLayout), "JSON Procesado:\n\n" + response, Snackbar.LENGTH_INDEFINITE);
+                            } else {
+                                mySnackbar = Snackbar.make(findViewById(R.id.mainLayout), "Error Procesando JSON:\n\n" + msgErrorExcepcion + "\n\n\n" + response, Snackbar.LENGTH_INDEFINITE);
+                            }
+
+                            View snackbarView = mySnackbar.getView();
+                            TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                            textView.setMaxLines(40);  // show multiple line
+                            mySnackbar.show();
+                            //Fin Nuevo SnackBar 28/12/2022
+                        }
 
                         if (activado == true && androidID.equals(androidID_codificado)) {
                             if (versionApp.equals("SerOnuba")) {
+                                button_anticipo.setVisibility(View.VISIBLE);
                                 button_solicitudEfectivo.setVisibility(View.VISIBLE);
-                            }
-                            button_comprobar.setVisibility(View.VISIBLE);
-                            button_scanner.setVisibility(View.VISIBLE);
-                            if (mensaje.equals("")) {
-                                final Toast toast = Toast.makeText(getApplicationContext(), fechaUltActualizacion, Toast.LENGTH_LONG);
-                                toast.show();
-                            } else {
-                                final Toast toast = Toast.makeText(getApplicationContext(), fechaUltActualizacion + "\n\n" + mensaje, Toast.LENGTH_LONG);
-                                toast.show();
+                                logoGEHD.setVisibility(View.VISIBLE);
                             }
 
+                            button_comprobar.setVisibility(View.VISIBLE);
+                            button_scanner.setVisibility(View.VISIBLE);
+
+                            if (esSalon == false){
+                                button_solicitudEfectivo.setVisibility(View.GONE);
+                                button_comprobar.setVisibility(View.GONE);
+                                button_scanner.setVisibility(View.GONE);
+
+                            }
+
+                            Toast.makeText(getApplicationContext(), fechaUltActualizacion, Toast.LENGTH_LONG).show();
+
+                            if ( MainActivity.getDebugMode() == false && !mensaje.equals("") ) {
+                                Snackbar mySnackbar = Snackbar.make(findViewById(R.id.mainLayout), mensaje, Snackbar.LENGTH_LONG);
+                                //mySnackbar.setAction(R.string.undo_string, new MyUndoListener());
+                                View snackbarView = mySnackbar.getView();
+                                TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                                textView.setMaxLines(3);  // show multiple line
+                                mySnackbar.show();
+                            }
 
                             textUltimaActualizacion.setText(fechaUltActualizacion);
                             textProvincia.setText(provincia);
-
-                            if (versionApp.equals("SerOnuba")) {
-                                logoGEHD.setVisibility(View.VISIBLE);
-                            } else {
-                                logoGEHD.setVisibility(View.INVISIBLE);
-                            }
 
                             if (actualizacion_permitir == true && actualizacion_disponible == true) { //Hay una actualización disponible
 
@@ -885,8 +1040,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         actualizaApp.setContext(getApplicationContext());
                                         actualizaApp.setActivity(MainActivity.this);
                                         actualizaApp.execute(url_actualizacion);
-                                       /*final Toast toast = Toast.makeText(getApplicationContext(), "Descargando Actualización", Toast.LENGTH_LONG);
-                                        toast.show();*/
+                                        //Toast.makeText(getApplicationContext(), "Descargando Actualización", Toast.LENGTH_LONG).show();
                                     }
                                 });
 
@@ -906,17 +1060,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
                         } else {
+                            button_anticipo.setVisibility(View.GONE);
                             button_solicitudEfectivo.setVisibility(View.GONE);
                             button_comprobar.setVisibility(View.INVISIBLE);
                             button_scanner.setVisibility(View.INVISIBLE);
                             //textUltimaActualizacion.setGravity(Gravity.CENTER);
                             textUltimaActualizacion.setText("Dispositivo NO Activado");
                             logoGEHD.setVisibility(View.INVISIBLE);
-
-
                         }
-
-
                     }
                 },
                 new Response.ErrorListener() {
@@ -926,7 +1077,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Context context = getApplicationContext();
                         CharSequence textToast="";
                         CharSequence textError="";
-                        int duration = Toast.LENGTH_SHORT;
 
 
                         if (error instanceof TimeoutError || error instanceof NoConnectionError) {
@@ -957,8 +1107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         textUltimaActualizacion.setGravity(Gravity.CENTER);
                         textUltimaActualizacion.setText(textError);
 
-                        final Toast toast = Toast.makeText(context, textToast, duration);
-                        toast.show();
+                        Toast.makeText(context, textToast, Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {
@@ -971,7 +1120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 params.put("usuario", usuario);
                 params.put("modelo", Build.MANUFACTURER + " " + Build.MODEL);
                 params.put("versionApp", version);
-
+                params.put("versionAndroid", versionAndroid);
 
                 return params;
             }
@@ -985,6 +1134,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ArrayList listaArray = new ArrayList<>();
 
         // Solicito los datos al archivo JSON
+        String msgErrorExcepcion="";
         try {
             JSONObject jsonObject = new JSONObject(cadena);
 
@@ -1015,40 +1165,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
 
-
-
-                /*
-                // Accedo a la fila 'postres' del archivo JSON
+                /*// Accedo a la fila 'postres' del archivo JSON
                 JSONArray dataArray = jsonObject.getJSONArray("configuracion");
-
                 // Recorro los datos que hay en la fila 'postres' del archivo JSON
                 for (int i = 0; i < dataArray.length(); i++) {
-
                     // Creo la  variable 'objetos' y recupero los valores
                     JSONObject objetos = dataArray.getJSONObject(i);
-
                     // Selecciono dato por dato
                     fechaUltActualizacion=objetos.getString("ultActualizacion");
-
-                }
-                */
+                }*/
 
             }else{
-                final Toast toast = Toast.makeText(getApplicationContext(), "Error resultado JSON", Toast.LENGTH_LONG);
-                toast.show();
+                Toast.makeText(getApplicationContext(), "Error resultado JSON", Toast.LENGTH_LONG).show();
             }
 
         } catch (JSONException e) {
             versionApp = "";
             e.printStackTrace();
 
-            final Toast toast = Toast.makeText(getApplicationContext(), "Error procesando JSON", Toast.LENGTH_LONG);
-            toast.show();
+            Toast.makeText(getApplicationContext(), "Error procesando JSON", Toast.LENGTH_LONG).show();
+
+            msgErrorExcepcion=e.toString();
         }
+
+        if(MainActivity.getDebugMode() == true) {
+            //Nuevo SnackBar 28/12/2022
+            Snackbar mySnackbar;
+            if (msgErrorExcepcion.equals("")) {
+                mySnackbar = Snackbar.make(findViewById(R.id.mainLayout), "JSON Procesado:\n\n" + cadena, Snackbar.LENGTH_INDEFINITE);
+            } else {
+                mySnackbar = Snackbar.make(findViewById(R.id.mainLayout), "Error Procesando JSON:\n\n" + msgErrorExcepcion + "\n\n\n" + cadena, Snackbar.LENGTH_INDEFINITE);
+            }
+
+            View snackbarView = mySnackbar.getView();
+            TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+            textView.setMaxLines(40);  // show multiple line
+            mySnackbar.show();
+            //Fin Nuevo SnackBar 28/12/2022
+        }
+
+
     }
 
 
-    public static void imprimir(final String msg, final Context contexto) {
+    public static void imprimir(final String msg, final Context contexto, final View view) {
 
         final Thread thread = new Thread(new Runnable() {
 
@@ -1065,11 +1225,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     writer.println(msg);
 
                     InputStream input = socket.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
 
                     final String respuesta = reader.readLine();
 
                     Log.i("Thread Impresión", "Respuesta Servidor: " + respuesta);
+
+                    //Nuevo SnackBar 28/12/2022
+                    Snackbar mySnackbar = Snackbar.make(view, respuesta, 5000);
+                    View snackbarView = mySnackbar.getView();
+                    TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                    textView.setTextSize(18);
+                    textView.setMaxLines(40);  // show multiple line
+                    mySnackbar.show();
+                    //Fin Nuevo SnackBar 28/12/2022
+
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -1084,6 +1254,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     final String resultado="Servidor no Encontrado: " + ex.getMessage();
                     Log.e("Thread Impresión", resultado);
 
+                    //Nuevo SnackBar 28/12/2022
+                    Snackbar mySnackbar = Snackbar.make(view, "Servidor no encontrado:\n\n" + resultado, 5000);
+                    View snackbarView = mySnackbar.getView();
+                    TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                    textView.setMaxLines(40);  // show multiple line
+                    mySnackbar.show();
+                    //Fin Nuevo SnackBar 28/12/2022
+
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -1095,73 +1273,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     final String resultado="I/O error: " + ex.getMessage();
                     Log.e("Thread Impresión", resultado);
 
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(contexto, resultado, Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    //Nuevo SnackBar 28/12/2022
+                    Snackbar mySnackbar = Snackbar.make(view, "Error al Imprimir Promoción:\n\n" + resultado, 5000);
+                    View snackbarView = mySnackbar.getView();
+                    TextView textView = (TextView) snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+                    textView.setMaxLines(40);  // show multiple line
+                    mySnackbar.show();
+                    //Fin Nuevo SnackBar 28/12/2022
+
+//                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(contexto, resultado , Toast.LENGTH_LONG).show();
+//                        }
+//                    });
 
                 }
             }
         });
 
         thread.start();
-
-
-        /*
-        final Handler handler = new Handler();
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    //Replace below IP with the IP of that device in which server socket open.
-                    //If you change port then change the port number in the server side code also.
-                    Socket s = new Socket("192.168.1.2", 9090);
-
-                    OutputStream out = s.getOutputStream();
-
-                    PrintWriter output = new PrintWriter(out);
-
-                    output.println(msg);
-                    output.flush();
-                    BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                    final String st = input.readLine();
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            //String s = mTextViewReplyFromServer.getText().toString();
-                            if (st.trim().length() != 0) {
-                                //mTextViewReplyFromServer.setText(s + "\nFrom Server : " + st);
-                                Context context = getApplicationContext();
-                                CharSequence text = "Compruebe su Conexión a Internet:\r\n\r\n";
-                                int duration = Toast.LENGTH_SHORT;
-
-                                final Toast toast = Toast.makeText(context,"\nFrom Server : " + st, duration);
-                                toast.show();
-
-                                //final Toast toast = Toast.makeText(getApplicationContext(), s + "\nFrom Server : " + st, Toast.LENGTH_LONG);
-                                //toast.show();
-                            }
-                        }
-                    });
-
-                    output.close();
-                    out.close();
-                    //s.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        thread.start();
-
-         */
-
 
     }
 
